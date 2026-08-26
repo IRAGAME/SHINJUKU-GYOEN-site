@@ -18,6 +18,7 @@ require __DIR__ . '/controllers/AuthController.php';
 require __DIR__ . '/controllers/ReservationController.php';
 require __DIR__ . '/controllers/CommentController.php';
 require __DIR__ . '/controllers/InfoController.php';
+require __DIR__ . '/controllers/MessageController.php';
 
 /* ------------------------------------------------------------
  *  Résolution de la "route" demandée
@@ -65,6 +66,17 @@ $routes = [
     ['DELETE', 'reservations/{id}', [ReservationController::class, 'cancel']],
     ['POST',   'comments',          [CommentController::class, 'store']],
     ['DELETE', 'comments/{id}',     [CommentController::class, 'destroy']],
+    // Messagerie WhatsApp
+    ['POST',   'messages',          [MessageController::class, 'store']],
+    ['GET',    'messages/{id}',     [MessageController::class, 'show']],
+    ['GET',    'messages/poll/{id}',[MessageController::class, 'poll']],
+    ['POST',   'messages/webhook',  [MessageController::class, 'webhook']],
+    ['GET',    'messages/webhook',  [MessageController::class, 'webhookVerify']],
+    // Admin messagerie
+    ['GET',    'admin/conversations',                      [MessageController::class, 'adminConversations']],
+    ['GET',    'admin/messages/{id}',                      [MessageController::class, 'adminMessages']],
+    ['POST',   'admin/messages/{id}',                      [MessageController::class, 'adminReply']],
+    ['POST',   'admin/conversations/{id}/close',           [MessageController::class, 'adminClose']],
 ];
 
 /* ------------------------------------------------------------

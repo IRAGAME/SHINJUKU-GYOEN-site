@@ -140,3 +140,41 @@ INSERT INTO reservations (user_id, visit_date, visit_time, visitors, status) VAL
     (2, DATE_ADD(CURDATE(), INTERVAL 3 DAY), '10:00:00', 2, 'confirmed'),
     (3, DATE_ADD(CURDATE(), INTERVAL 5 DAY), '14:30:00', 4, 'confirmed'),
     (4, DATE_ADD(CURDATE(), INTERVAL 7 DAY), '09:30:00', 1, 'confirmed');
+
+-- ============================================================
+--  SHINJUKU GYOEN - Messagerie WhatsApp
+-- ============================================================
+
+-- ------------------------------------------------------------
+-- Conversations (visiteur <-> admin via WhatsApp)
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS conversations (
+    id              INT UNSIGNED     NOT NULL AUTO_INCREMENT,
+    visitor_name    VARCHAR(120)     NOT NULL,
+    visitor_phone   VARCHAR(20)      NULL DEFAULT NULL,
+    visitor_email   VARCHAR(190)     NULL DEFAULT NULL,
+    status          ENUM('open','closed') NOT NULL DEFAULT 'open',
+    whatsapp_chat_id VARCHAR(100)    NULL DEFAULT NULL,
+    created_at      TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY idx_conv_status (status),
+    KEY idx_conv_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ------------------------------------------------------------
+-- Messages
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS messages (
+    id                    INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    conversation_id       INT UNSIGNED  NOT NULL,
+    sender                ENUM('visitor','admin') NOT NULL,
+    body                  TEXT          NOT NULL,
+    whatsapp_message_id   VARCHAR(100)  NULL DEFAULT NULL,
+    created_at            TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY idx_msg_conv (conversation_id),
+    KEY idx_msg_created (created_at),
+    CONSTRAINT fk_messages_conversation
+        FOREIGN KEY (conversation_id) REFERENCES conversations (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
