@@ -371,9 +371,9 @@
         .auth-form-panel { animation: authFadeIn .3s ease; }
         @keyframes authFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .field { position: relative; }
-        .field-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 20px; color: rgb(var(--gold) / 0.75); pointer-events: none; line-height: 1; transition: color .2s ease; z-index: 1; }
+        .field-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 20px; color: rgb(var(--gold) / 0.75); pointer-events: none; line-height: 1; transition: color .2s ease; z-index: 1; }
         .field:focus-within .field-icon { color: rgb(var(--gold) / 1); }
-        .field-input { width: 100%; background: rgb(var(--surface-container-low) / 1); border: 1px solid rgb(var(--outline-variant) / 0.6); border-radius: 10px; padding: 12px 44px 12px 48px; color: rgb(var(--on-surface) / 1); font-family: 'Manrope', sans-serif; font-size: 14px; line-height: 1.4; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
+        .field-input { width: 100%; background: rgb(var(--surface-container-low) / 1); border: 1px solid rgb(var(--outline-variant) / 0.6); border-radius: 10px; padding: 12px 44px 12px 50px; color: rgb(var(--on-surface) / 1); font-family: 'Manrope', sans-serif; font-size: 14px; line-height: 1.4; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
         .field-input::placeholder { color: rgb(var(--on-surface-variant) / 0.45); font-size: 13px; }
         .field-input:focus { outline: none; background: rgb(var(--surface-bright) / 1); border-color: rgb(var(--gold) / 1); box-shadow: 0 0 0 3px rgb(var(--gold) / 0.12); }
         .field-input.has-error { border-color: rgb(var(--error) / 1); box-shadow: 0 0 0 3px rgb(var(--error) / 0.1); }
@@ -381,7 +381,7 @@
         .dark .field-input:focus { background: rgb(var(--surface-container-high) / 0.2); }
         .field-eye { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border: none; border-radius: 8px; background: transparent; color: rgb(var(--on-surface-variant) / 0.6); cursor: pointer; transition: color .15s ease, background .15s ease; z-index: 1; }
         .field-eye:hover { color: rgb(var(--gold-dark) / 1); background: rgb(var(--gold) / 0.08); }
-        .field-eye .material-symbols-outlined { font-size: 19px; }
+        .field-eye .material-symbols-outlined { font-size: 18px; }
         .pw-meter { display: flex; gap: 3px; margin-top: 8px; }
         .pw-meter span { height: 3px; flex: 1; border-radius: 9999px; background: rgb(var(--outline-variant) / 0.5); transition: background .25s ease; }
         .pw-meter[data-score="1"] span:nth-child(-n+1) { background: rgb(var(--error) / 0.85); }
