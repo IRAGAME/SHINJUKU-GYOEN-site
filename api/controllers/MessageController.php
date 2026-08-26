@@ -440,7 +440,11 @@ final class MessageController
      */
     private static function processIncomingWhatsAppMessage(string $from, string $body, string $waMsgId): void
     {
-        $pdo = getPDO();
+        try {
+            $pdo = getPDO();
+        } catch (\Throwable $e) {
+            return; // DB indisponible, on ignore
+        }
 
         // Chercher la dernière conversation ouverte
         $stmt = $pdo->prepare(
