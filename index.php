@@ -331,6 +331,9 @@
         .chat-init textarea::placeholder { color: rgb(var(--on-surface-variant) / 0.45); }
         .chat-init textarea:focus { border-color: rgb(var(--gold) / 0.7); box-shadow: 0 0 0 3px rgb(var(--gold) / 0.1); }
         .dark .chat-init textarea { background: rgb(var(--surface-container-high) / 0.5); border-color: rgb(var(--outline-variant) / 0.3); }
+        .chat-whatsapp-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 12px; background: #25D366; color: #fff; font-family: 'Manrope', sans-serif; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; text-decoration: none; transition: background .2s ease, transform .1s ease; }
+        .chat-whatsapp-btn:hover { background: #1da851; transform: translateY(1px); }
+        .chat-whatsapp-btn:active { transform: scale(0.98); }
         /* ---- Widget Météo ---- */
         .weather-spinner { width: 40px; height: 40px; border: 3px solid rgb(var(--outline-variant) / 0.5); border-top-color: rgb(var(--gold) / 1); border-radius: 9999px; animation: auth-spin .7s linear infinite; }
         .weather-icon-wrap { width: 80px; height: 80px; flex-shrink: 0; }
@@ -1640,11 +1643,15 @@ Prévisions 5 jours
 <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 0;">chat</span>
 </div>
 <h3>Besoin d'aide ?</h3>
-<p>Écrivez-nous, nous répondons rapidement via WhatsApp.</p>
+<p>Écrivez-nous directement ici ou via WhatsApp.</p>
 <input type="text" id="chatName" placeholder="Votre nom" maxlength="120"/>
 <textarea id="chatFirstMsg" rows="3" maxlength="4000" placeholder="Décrivez votre question ou demande..."></textarea>
 <p class="error" id="chatInitError"></p>
 <button id="chatStart">Envoyer</button>
+<a id="chatWhatsApp" href="https://wa.me/25766061745?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20le%20jardin%20Shinjuku%20Gyoen." target="_blank" rel="noopener" class="chat-whatsapp-btn">
+<svg viewBox="0 0 32 32" width="18" height="18" aria-hidden="true"><path d="M16.004 0h-.008C7.174 0 0 7.176 0 16c0 3.5 1.132 6.744 3.058 9.378L1.054 31.2l6.074-1.98A15.907 15.907 0 0016.004 32C24.826 32 32 24.822 32 16S24.826 0 16.004 0zm9.326 22.594c-.39 1.098-1.932 2.008-3.168 2.27-.842.178-1.94.32-5.654-1.216-4.756-1.966-7.806-6.79-8.04-7.104-.226-.314-1.896-2.524-1.896-4.814s1.2-3.41 1.626-3.878c.39-.428.926-.564 1.232-.564.15 0 .284.008.406.014.426.018.64.044.916.71.34.836 1.164 2.844 1.264 3.05.1.206.2.444.06.714-.134.28-.266.452-.496.698-.23.246-.464.55-.664.74-.2.198-.408.41-.174.796.234.384 1.038 1.716 2.226 2.782 1.528 1.37 2.816 1.796 3.21 1.994.394.198.624.166.852-.1.234-.268.996-1.162 1.262-1.56.262-.396.528-.332.894-.2.232.086 1.47.694 1.722.82.252.126.422.19.486.296.066.104.066.6-.324 1.1z" fill="currentColor"/></svg>
+Ouvrir dans WhatsApp
+</a>
 </div>
 
 <!-- Zone des messages (cachée au début) -->
@@ -1717,6 +1724,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var chatName   = document.getElementById('chatName');
     var chatFirstMsg = document.getElementById('chatFirstMsg');
     var chatInitError = document.getElementById('chatInitError');
+    var chatWhatsApp = document.getElementById('chatWhatsApp');
 
     var conversationId = null;
     var lastMessageCount = 0;
@@ -1735,6 +1743,15 @@ document.addEventListener('DOMContentLoaded', function () {
     chatStart.addEventListener('click', startConversation);
     chatName.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); startConversation(); } });
     chatFirstMsg.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); startConversation(); } });
+
+    // Mettre à jour le lien WhatsApp en temps réel
+    function updateWhatsAppLink() {
+        var name = chatName.value.trim() || 'Visiteur';
+        var msg = chatFirstMsg.value.trim() || 'Bonjour, je souhaite des informations sur le jardin.';
+        chatWhatsApp.href = 'https://wa.me/25766061745?text=' + encodeURIComponent(name + ' : ' + msg);
+    }
+    chatName.addEventListener('input', updateWhatsAppLink);
+    chatFirstMsg.addEventListener('input', updateWhatsAppLink);
 
     function startConversation() {
         var name = chatName.value.trim();
@@ -1755,6 +1772,10 @@ document.addEventListener('DOMContentLoaded', function () {
         chatStart.disabled = true;
         chatStart.textContent = 'Envoi...';
 
+        // Mettre à jour le lien WhatsApp avec le message de l'utilisateur
+        var waText = encodeURIComponent(name + ' : ' + firstMsg);
+        chatWhatsApp.href = 'https://wa.me/25766061745?text=' + waText;
+
         var payload = {
             visitor_name: name,
             body: firstMsg
@@ -1768,10 +1789,10 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(function (r) { return r.json(); })
         .then(function (res) {
             if (!res.success) {
-                chatInitError.textContent = res.error ? res.error.message : 'Erreur lors de l\'envoi.';
+                chatInitError.innerHTML = 'Erreur lors de l\'envoi. <a href="' + chatWhatsApp.href + '" target="_blank" rel="noopener" style="color:rgb(var(--gold));text-decoration:underline;">Ouvrir dans WhatsApp</a>';
                 chatInitError.style.display = 'block';
                 chatStart.disabled = false;
-                chatStart.textContent = 'Commencer la conversation';
+                chatStart.textContent = 'Envoyer';
                 return;
             }
             conversationId = res.data.conversation_id;
@@ -1781,10 +1802,10 @@ document.addEventListener('DOMContentLoaded', function () {
             startPolling();
         })
         .catch(function () {
-            chatInitError.textContent = 'Erreur réseau.';
+            chatInitError.innerHTML = 'Erreur réseau. <a href="' + chatWhatsApp.href + '" target="_blank" rel="noopener" style="color:rgb(var(--gold));text-decoration:underline;">Ouvrir dans WhatsApp</a>';
             chatInitError.style.display = 'block';
             chatStart.disabled = false;
-            chatStart.textContent = 'Commencer la conversation';
+            chatStart.textContent = 'Envoyer';
         });
     }
 

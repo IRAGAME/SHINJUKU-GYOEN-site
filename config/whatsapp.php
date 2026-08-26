@@ -15,10 +15,10 @@ declare(strict_types=1);
  */
 
 // ─── Vonage API ────────────────────────────────────────────
-define('VONAGE_API_KEY', 'riwqBU2Vn4dA3yvg');
-define('VONAGE_API_SECRET', 'pB08DgRXSmLPj6Xw!B2');
+define('VONAGE_API_KEY', '6effc78e');
+define('VONAGE_API_SECRET', '$YOUR_API_SECRET');
 
-// Numéro Vonage (celui qui envoie les notifications)
+// Numéro Vonage sandbox (celui qui envoie les notifications)
 define('VONAGE_WHATSAPP_FROM', '14157386102');
 
 // Numéro WhatsApp de l'admin (celui qui REÇOIT les notifications)
@@ -59,7 +59,7 @@ function whatsapp_send_message(string $to, string $text): array
     // Nettoyer le numéro
     $to = preg_replace('/[^0-9]/', '', $to);
 
-    $url = 'https://messages-api-us-1.vonage.com/v1/messages';
+    $url = 'https://messages-sandbox.nexmo.com/v1/messages';
 
     $payload = json_encode([
         'from'         => VONAGE_WHATSAPP_FROM,
