@@ -31,6 +31,10 @@ define('WHATSAPP_PHONE_NUMBER_ID', '');
 define('WHATSAPP_ADMIN_PHONE', '+25766061745');
 
 // Identifiant du WhatsApp Business Account (trouvable dans Meta Business Manager)
+// Comment trouver :
+//   1. business.facebook.com → Paramètres → Comptes WhatsApp Business
+//   2. L'id est dans l'URL : .../whatsapp-business-accounts/123456789012345
+//   3. Ou dans developers.facebook.com → WhatsApp → Configuration de l'API
 define('WHATSAPP_BUSINESS_ACCOUNT_ID', '');
 
 // URL de base de l'API WhatsApp Cloud
