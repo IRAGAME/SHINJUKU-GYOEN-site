@@ -256,43 +256,95 @@
         .drawer-kanji { color: rgba(6,27,14,.045); }
         .dark .drawer-kanji { color: rgba(226,227,222,.05); }
         @media (prefers-reduced-motion: reduce) { .menu-link, .drawer-fade { transition: none; opacity: 1; transform: none; } #bgCanvas::before { animation: none; } }
-        /* ---- Widget Messagerie WhatsApp ---- */
-        #chatFab { position: fixed; bottom: 24px; left: 24px; z-index: 62; width: 56px; height: 56px; border-radius: 9999px; background: #25D366; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(37,211,102,.45); display: grid; place-items: center; transition: transform .2s ease, box-shadow .2s ease; }
-        #chatFab:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(37,211,102,.55); }
-        #chatFab svg { width: 30px; height: 30px; }
-        #chatWidget { position: fixed; bottom: 92px; left: 24px; z-index: 62; width: 380px; max-width: calc(100vw - 32px); height: 480px; max-height: calc(100vh - 140px); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; background: #fff; box-shadow: 0 12px 40px rgba(0,0,0,.18); opacity: 0; transform: translateY(12px) scale(0.97); pointer-events: none; transition: opacity .25s ease, transform .25s ease; }
+        /* ---- Widget Messagerie (design intégré) ---- */
+        #chatFab { position: fixed; bottom: 24px; left: 24px; z-index: 62; width: 56px; height: 56px; border-radius: 9999px; background: rgb(var(--primary) / 1); border: 1px solid rgb(var(--gold) / 0.3); cursor: pointer; box-shadow: 0 4px 16px rgba(6,27,14,0.35); display: grid; place-items: center; transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
+        #chatFab:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(6,27,14,0.45); background: rgb(var(--primary) / 0.9); }
+        #chatFab svg, #chatFab .material-symbols-outlined { color: rgb(var(--on-primary) / 1); width: 26px; height: 26px; }
+        .dark #chatFab { background: rgb(var(--primary-fixed-dim) / 1); border-color: rgb(var(--gold) / 0.25); box-shadow: 0 4px 16px rgba(0,0,0,0.5); }
+        .dark #chatFab:hover { background: rgb(var(--primary-fixed) / 1); }
+        .dark #chatFab svg, .dark #chatFab .material-symbols-outlined { color: rgb(var(--on-primary-fixed) / 1); }
+
+        #chatWidget { position: fixed; bottom: 92px; left: 24px; z-index: 62; width: 400px; max-width: calc(100vw - 32px); height: 540px; max-height: calc(100vh - 140px); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; background: rgb(var(--surface-bright) / 1); border: 1px solid rgb(var(--outline-variant) / 0.4); box-shadow: 0 16px 48px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.08); opacity: 0; transform: translateY(12px) scale(0.97); pointer-events: none; transition: opacity .3s cubic-bezier(.22,1,.36,1), transform .3s cubic-bezier(.22,1,.36,1); }
         #chatWidget.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-        .chat-header { background: #075E54; color: #fff; padding: 14px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-        .chat-header .chat-avatar { width: 40px; height: 40px; border-radius: 9999px; background: #128C7E; display: grid; place-items: center; font-size: 18px; font-weight: 700; flex-shrink: 0; }
+        .dark #chatWidget { background: rgb(var(--surface-container) / 1); border-color: rgb(var(--outline-variant) / 0.35); box-shadow: 0 16px 48px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.25); }
+
+        .chat-header { background: rgb(var(--primary) / 1); color: rgb(var(--on-primary) / 1); padding: 16px 18px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; position: relative; }
+        .chat-header::after { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgb(var(--gold) / 0.35), transparent); }
+        .dark .chat-header { background: rgb(var(--primary-fixed-dim) / 1); color: rgb(var(--on-primary-fixed) / 1); }
+        .chat-header .chat-avatar { width: 42px; height: 42px; border-radius: 14px; background: rgb(var(--gold) / 0.2); border: 1.5px solid rgb(var(--gold) / 0.5); display: grid; place-items: center; flex-shrink: 0; }
+        .chat-header .chat-avatar .material-symbols-outlined { font-size: 22px; color: rgb(var(--gold) / 1); }
+        .dark .chat-header .chat-avatar { background: rgb(var(--gold) / 0.15); border-color: rgb(var(--gold) / 0.4); }
         .chat-header-info { flex: 1; min-width: 0; }
-        .chat-header-info .name { font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 600; }
-        .chat-header-info .status { font-size: 12px; opacity: .8; }
-        .chat-header button { background: none; border: none; color: rgba(255,255,255,.8); cursor: pointer; padding: 4px; border-radius: 50%; transition: color .15s ease; }
-        .chat-header button:hover { color: #fff; }
-        .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 16px; background: #ECE5DD; }
-        .chat-msg { max-width: 80%; padding: 8px 12px; border-radius: 12px; font-family: 'Manrope', sans-serif; font-size: 14px; line-height: 1.45; word-break: break-word; }
-        .chat-msg.visitor { align-self: flex-end; background: #DCF8C6; border-bottom-right-radius: 4px; }
-        .chat-msg.admin { align-self: flex-start; background: #fff; border-bottom-left-radius: 4px; box-shadow: 0 1px 1px rgba(0,0,0,.06); }
-        .chat-msg .time { display: block; font-size: 10px; color: rgba(0,0,0,.35); text-align: right; margin-top: 4px; }
-        .chat-msg .sender { font-size: 11px; font-weight: 600; color: #075E54; margin-bottom: 2px; }
-        .chat-msg.visitor .sender { color: #128C7E; text-align: right; }
-        .chat-input-area { display: flex; gap: 8px; padding: 10px 12px; background: #f0f0f0; border-top: 1px solid #ddd; flex-shrink: 0; }
-        .chat-input-area input { flex: 1; border: 1px solid #ccc; border-radius: 24px; padding: 10px 16px; font-family: 'Manrope', sans-serif; font-size: 14px; outline: none; transition: border-color .15s ease; }
-        .chat-input-area input:focus { border-color: #25D366; }
-        .chat-input-area button { width: 40px; height: 40px; border-radius: 9999px; background: #25D366; border: none; cursor: pointer; display: grid; place-items: center; transition: background .15s ease; flex-shrink: 0; }
-        .chat-input-area button:hover { background: #1da851; }
-        .chat-input-area button svg { width: 20px; height: 20px; fill: #fff; }
-        .chat-input-area button:disabled { opacity: .5; cursor: not-allowed; }
-        .chat-init { padding: 20px; display: flex; flex-direction: column; gap: 12px; background: #fff; flex: 1; }
-        .chat-init h3 { font-family: 'Libre Caslon Text', serif; font-size: 20px; color: #075E54; margin: 0; }
-        .chat-init p { font-family: 'Manrope', sans-serif; font-size: 13px; color: #666; margin: 0; }
-        .chat-init input { border: 1px solid #ccc; border-radius: 10px; padding: 10px 14px; font-family: 'Manrope', sans-serif; font-size: 14px; outline: none; transition: border-color .15s ease; }
-        .chat-init input:focus { border-color: #25D366; }
-        .chat-init button { background: #25D366; color: #fff; border: none; border-radius: 10px; padding: 12px; font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .15s ease; }
-        .chat-init button:hover { background: #1da851; }
-        .chat-init .error { color: #e74c3c; font-size: 12px; display: none; }
-        #chatBadge { position: absolute; top: -2px; right: -2px; width: 20px; height: 20px; border-radius: 9999px; background: #e74c3c; color: #fff; font-size: 11px; font-weight: 700; display: none; place-items: center; pointer-events: none; }
-        @media (max-width: 480px) { #chatWidget { left: 8px; right: 8px; width: auto; bottom: 84px; height: calc(100vh - 120px); border-radius: 12px; } #chatFab { left: 16px; bottom: 16px; } }
+        .chat-header-info .name { font-family: 'Libre Caslon Text', serif; font-size: 16px; font-weight: 400; letter-spacing: 0.02em; }
+        .chat-header-info .status { font-family: 'Manrope', sans-serif; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.7; margin-top: 1px; }
+        .chat-header-info .status-dot { display: inline-block; width: 6px; height: 6px; border-radius: 9999px; background: #4ade80; margin-right: 5px; vertical-align: 1px; animation: pulse-dot 2s ease-in-out infinite; }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .chat-header button { background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 6px; border-radius: 10px; transition: color .15s ease, background .15s ease; display: grid; place-items: center; }
+        .chat-header button:hover { color: #fff; background: rgba(255,255,255,0.1); }
+        .chat-header button .material-symbols-outlined { font-size: 20px; }
+
+        .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 16px; background: rgb(var(--surface-container-low) / 0.4); scroll-behavior: smooth; }
+        .chat-messages::-webkit-scrollbar { width: 4px; }
+        .chat-messages::-webkit-scrollbar-thumb { background: rgb(var(--outline-variant) / 0.5); border-radius: 9999px; }
+        .dark .chat-messages { background: rgb(var(--surface-container-lowest) / 0.4); }
+
+        .chat-msg { max-width: 82%; padding: 10px 14px; border-radius: 16px; font-family: 'Manrope', sans-serif; font-size: 14px; line-height: 1.5; word-break: break-word; animation: msg-in .3s cubic-bezier(.22,1,.36,1) both; }
+        @keyframes msg-in { from { opacity: 0; transform: translateY(6px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .chat-msg.visitor { align-self: flex-end; background: rgb(var(--primary) / 1); color: rgb(var(--on-primary) / 1); border-bottom-right-radius: 6px; }
+        .chat-msg.admin { align-self: flex-start; background: rgb(var(--surface-bright) / 1); color: rgb(var(--on-surface) / 1); border: 1px solid rgb(var(--outline-variant) / 0.3); border-bottom-left-radius: 6px; }
+        .dark .chat-msg.visitor { background: rgb(--1a3a2a / 1); border: 1px solid rgb(var(--gold) / 0.2); }
+        .dark .chat-msg.admin { background: rgb(var(--surface-container-high) / 0.7); border-color: rgb(var(--outline-variant) / 0.25); }
+        .chat-msg .time { display: block; font-size: 10px; color: rgb(var(--on-surface-variant) / 0.5); text-align: right; margin-top: 4px; }
+        .chat-msg .sender { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 3px; color: rgb(var(--gold) / 1); }
+        .chat-msg.visitor .sender { text-align: right; }
+
+        .chat-input-area { display: flex; gap: 8px; padding: 12px 14px; background: rgb(var(--surface-bright) / 1); border-top: 1px solid rgb(var(--outline-variant) / 0.3); flex-shrink: 0; }
+        .dark .chat-input-area { background: rgb(var(--surface-container) / 1); border-color: rgb(var(--outline-variant) / 0.2); }
+        .chat-input-area input { flex: 1; border: 1px solid rgb(var(--outline-variant) / 0.5); border-radius: 14px; padding: 10px 16px; font-family: 'Manrope', sans-serif; font-size: 14px; background: rgb(var(--surface-bright) / 1); color: rgb(var(--on-surface) / 1); outline: none; transition: border-color .2s ease, box-shadow .2s ease; }
+        .chat-input-area input::placeholder { color: rgb(var(--on-surface-variant) / 0.5); }
+        .chat-input-area input:focus { border-color: rgb(var(--gold) / 0.7); box-shadow: 0 0 0 3px rgb(var(--gold) / 0.1); }
+        .dark .chat-input-area input { background: rgb(var(--surface-container-high) / 0.5); border-color: rgb(var(--outline-variant) / 0.3); }
+        .chat-input-area button { width: 40px; height: 40px; border-radius: 12px; background: rgb(var(--gold) / 1); border: none; cursor: pointer; display: grid; place-items: center; transition: background .15s ease, transform .1s ease; flex-shrink: 0; }
+        .chat-input-area button:hover { background: rgb(var(--gold-dark) / 1); transform: scale(1.04); }
+        .chat-input-area button:active { transform: scale(0.96); }
+        .chat-input-area button svg { width: 18px; height: 18px; fill: rgb(var(--on-primary) / 1); }
+        .dark .chat-input-area button svg { fill: rgb(var(--on-primary-fixed) / 1); }
+        .chat-input-area button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        .chat-init { padding: 28px 22px; display: flex; flex-direction: column; gap: 14px; background: rgb(var(--surface-bright) / 1); flex: 1; }
+        .dark .chat-init { background: rgb(var(--surface-container) / 0.5); }
+        .chat-init .chat-init-icon { width: 52px; height: 52px; border-radius: 16px; background: rgb(var(--gold) / 0.1); border: 1px solid rgb(var(--gold) / 0.25); display: grid; place-items: center; margin-bottom: 4px; }
+        .chat-init .chat-init-icon .material-symbols-outlined { font-size: 26px; color: rgb(var(--gold) / 1); }
+        .chat-init h3 { font-family: 'Libre Caslon Text', serif; font-size: 22px; color: rgb(var(--on-surface) / 1); margin: 0; font-weight: 400; }
+        .chat-init p { font-family: 'Manrope', sans-serif; font-size: 13px; color: rgb(var(--on-surface-variant) / 0.7); margin: 0; line-height: 1.5; }
+        .chat-init input { border: 1px solid rgb(var(--outline-variant) / 0.5); border-radius: 12px; padding: 11px 14px; font-family: 'Manrope', sans-serif; font-size: 14px; background: rgb(var(--surface-bright) / 1); color: rgb(var(--on-surface) / 1); outline: none; transition: border-color .2s ease, box-shadow .2s ease; }
+        .chat-init input::placeholder { color: rgb(var(--on-surface-variant) / 0.45); }
+        .chat-init input:focus { border-color: rgb(var(--gold) / 0.7); box-shadow: 0 0 0 3px rgb(var(--gold) / 0.1); }
+        .dark .chat-init input { background: rgb(var(--surface-container-high) / 0.5); border-color: rgb(var(--outline-variant) / 0.3); }
+        .chat-init button { background: rgb(var(--primary) / 1); color: rgb(var(--on-primary) / 1); border: none; border-radius: 12px; padding: 12px; font-family: 'Manrope', sans-serif; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; cursor: pointer; transition: background .2s ease, transform .1s ease; }
+        .chat-init button:hover { background: rgb(var(--primary) / 0.85); }
+        .chat-init button:active { transform: translateY(1px); }
+        .dark .chat-init button { background: rgb(var(--primary-fixed-dim) / 1); color: rgb(var(--on-primary-fixed) / 1); }
+        .dark .chat-init button:hover { background: rgb(var(--primary-fixed) / 1); }
+        .chat-init .error { color: rgb(var(--error) / 1); font-family: 'Manrope', sans-serif; font-size: 12px; display: none; background: rgb(var(--error-container) / 0.4); padding: 8px 12px; border-radius: 8px; border: 1px solid rgb(var(--error) / 0.2); }
+        /* ---- Widget Météo ---- */
+        .weather-spinner { width: 40px; height: 40px; border: 3px solid rgb(var(--outline-variant) / 0.5); border-top-color: rgb(var(--gold) / 1); border-radius: 9999px; animation: auth-spin .7s linear infinite; }
+        .weather-icon-wrap { width: 80px; height: 80px; flex-shrink: 0; }
+        .weather-icon-wrap img { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); }
+        .forecast-card { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px; border-radius: 0.75rem; background: rgb(var(--surface-container-low) / 0.6); border: 1px solid rgb(var(--outline-variant) / 0.3); transition: background .2s ease, border-color .2s ease; }
+        .forecast-card:hover { background: rgb(var(--surface-container-high) / 0.8); border-color: rgb(var(--gold) / 0.3); }
+        .forecast-day { font-family: 'Manrope', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgb(var(--on-surface-variant) / 0.8); }
+        .forecast-icon { width: 36px; height: 36px; }
+        .forecast-icon img { width: 100%; height: 100%; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.12)); }
+        .forecast-temp { font-family: 'Libre Caslon Text', serif; font-size: 18px; font-weight: 400; color: rgb(var(--primary) / 1); line-height: 1; }
+        .forecast-temp-min { font-family: 'Manrope', sans-serif; font-size: 12px; color: rgb(var(--on-surface-variant) / 0.6); }
+        .dark .forecast-card { background: rgba(30,33,30,0.6); border-color: rgba(67,72,67,0.3); }
+        .dark .forecast-card:hover { background: rgba(41,44,41,0.8); }
+        @media (max-width: 640px) { .forecast-card { padding: 10px 4px; } .forecast-day { font-size: 10px; } .forecast-icon { width: 30px; height: 30px; } .forecast-temp { font-size: 15px; } }
+        /* ---- Fin Widget Météo ---- */
+        #chatBadge { position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; border-radius: 9999px; background: rgb(var(--error) / 1); color: #fff; font-size: 10px; font-weight: 700; display: none; place-items: center; pointer-events: none; padding: 0 4px; border: 2px solid rgb(var(--surface-bright) / 1); }
+        .dark #chatBadge { border-color: rgb(var(--surface-container) / 1); }
+        @media (max-width: 480px) { #chatWidget { left: 8px; right: 8px; width: auto; bottom: 84px; height: calc(100vh - 120px); border-radius: 16px; } #chatFab { left: 16px; bottom: 16px; width: 52px; height: 52px; } }
         .slot-btn { transition: all .2s ease; }
         .slot-btn.selected { background: #061b0e; color: #ffffff; border-color: #061b0e; }
         .star-btn { cursor: pointer; transition: transform .15s ease, color .15s ease; }
@@ -565,7 +617,7 @@
         body.offline #mapPins .map-pin, body.offline #siteViewer, body.offline #backToTop,
         body.offline #toast, body.offline #authModal, body.offline #mobileMenu,
         body.offline #myReservations, body.offline #distributionBars,
-        body.offline #chatWidget { display: none !important; }
+        body.offline #chatWidget, body.offline #weatherWidget { display: none !important; }
         body.offline #carte .glass-panel > p { color: rgb(var(--on-surface-variant)); }
 
         /* ---- Pied de page ---- */
@@ -603,6 +655,7 @@
 <nav class="hidden xl:flex items-center gap-8" aria-label="Navigation principale">
 <a href="#histoire" class="nav-link">Notre histoire</a>
 <a href="#jardins" class="nav-link">Les jardins</a>
+<a href="#meteo" class="nav-link">Météo</a>
 <a href="#carte" class="nav-link">Carte du jardin</a>
 <a href="#booking" class="nav-link">Réservation</a>
 <a href="#avis" class="nav-link">Avis</a>
@@ -654,8 +707,16 @@
 </span>
 <span class="ml-auto material-symbols-outlined text-lg text-on-surface-variant/40 group-hover:text-gold transition-colors" style="font-variation-settings:'FILL' 0;">arrow_forward</span>
 </a>
-<a href="#carte" data-close-menu class="menu-link flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-primary transition-colors group">
+<a href="#meteo" data-close-menu class="menu-link flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-primary transition-colors group">
 <span class="font-headline-md text-sm text-gold-dark w-7 shrink-0">03</span>
+<span class="flex flex-col leading-tight">
+<span class="font-label-sm text-label-sm uppercase tracking-widest">Météo</span>
+<span class="text-xs text-on-surface-variant/60 mt-1">Conditions en temps réel</span>
+</span>
+<span class="ml-auto material-symbols-outlined text-lg text-on-surface-variant/40 group-hover:text-gold transition-colors" style="font-variation-settings:'FILL' 0;">arrow_forward</span>
+</a>
+<a href="#carte" data-close-menu class="menu-link flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-primary transition-colors group">
+<span class="font-headline-md text-sm text-gold-dark w-7 shrink-0">04</span>
 <span class="flex flex-col leading-tight">
 <span class="font-label-sm text-label-sm uppercase tracking-widest">Carte du jardin</span>
 <span class="text-xs text-on-surface-variant/60 mt-1">Points d'intérêt &amp; promenades</span>
@@ -663,7 +724,7 @@
 <span class="ml-auto material-symbols-outlined text-lg text-on-surface-variant/40 group-hover:text-gold transition-colors" style="font-variation-settings:'FILL' 0;">arrow_forward</span>
 </a>
 <a href="#booking" data-close-menu class="menu-link flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-primary transition-colors group">
-<span class="font-headline-md text-sm text-gold-dark w-7 shrink-0">04</span>
+<span class="font-headline-md text-sm text-gold-dark w-7 shrink-0">05</span>
 <span class="flex flex-col leading-tight">
 <span class="font-label-sm text-label-sm uppercase tracking-widest">Réservation</span>
 <span class="text-xs text-on-surface-variant/60 mt-1">Date &amp; créneau horaire</span>
@@ -671,7 +732,7 @@
 <span class="ml-auto material-symbols-outlined text-lg text-on-surface-variant/40 group-hover:text-gold transition-colors" style="font-variation-settings:'FILL' 0;">arrow_forward</span>
 </a>
 <a href="#avis" data-close-menu class="menu-link flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-primary transition-colors group">
-<span class="font-headline-md text-sm text-gold-dark w-7 shrink-0">05</span>
+<span class="font-headline-md text-sm text-gold-dark w-7 shrink-0">06</span>
 <span class="flex flex-col leading-tight">
 <span class="font-label-sm text-label-sm uppercase tracking-widest">Avis des visiteurs</span>
 <span class="text-xs text-on-surface-variant/60 mt-1">Partagez votre expérience</span>
@@ -975,11 +1036,136 @@ Tokyo · Japan</span>
 </div>
 </section>
 
+<!-- ============================================================
+     MÉTÉO EN TEMPS RÉEL — OpenWeatherMap API
+     ============================================================ -->
+<section id="meteo" class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto relative scroll-mt-24 overflow-hidden">
+<div class="kanji-watermark left-[-3rem] top-10" style="font-size:200px;">天気</div>
+<div class="text-center mb-16 fade-in-up">
+<span class="eyebrow font-label-sm text-label-sm text-gold-dark uppercase tracking-[0.2em] mb-5 block">Météo · 04</span>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary mb-4">Météo au jardin</h2>
+<div class="gold-rule w-28 mx-auto mb-6"></div>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">Consultez les conditions météorologiques en temps réel pour planifier votre visite au Shinjuku Gyoen.</p>
+</div>
+
+<!-- Widget Météo Principal -->
+<div id="weatherWidget" class="fade-in-up">
+<div class="glass-panel p-6 sm:p-8 md:p-10 rounded-xl relative overflow-hidden">
+<!-- Ligne décorative en haut -->
+<div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gold-dark via-gold to-gold-light"></div>
+
+<!-- État de chargement -->
+<div id="weatherLoading" class="flex flex-col items-center justify-center py-12 gap-4">
+<div class="weather-spinner"></div>
+<p class="font-body-md text-body-md text-on-surface-variant">Chargement de la météo...</p>
+</div>
+
+<!-- Message d'erreur (caché par défaut) -->
+<div id="weatherError" class="hidden flex-col items-center justify-center py-12 gap-4">
+<span class="material-symbols-outlined text-error text-5xl" style="font-variation-settings:'FILL' 0;">cloud_off</span>
+<p id="weatherErrorMsg" class="font-body-md text-body-md text-on-surface-variant text-center">Impossible de charger les données météo.</p>
+<button id="weatherRetry" class="mt-2 font-label-sm text-label-sm text-gold-dark uppercase tracking-widest hover:text-primary transition-colors">Réessayer</button>
+</div>
+
+<!-- Contenu météo (caché au chargement) -->
+<div id="weatherContent" class="hidden">
+<!-- Ligne du haut : localisation + date -->
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gold" style="font-variation-settings:'FILL' 0;">location_on</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Shinjuku Gyoen · Tokyo</span>
+</div>
+<span id="weatherDate" class="font-label-sm text-label-sm text-on-surface-variant/70 uppercase tracking-widest"></span>
+</div>
+
+<!-- Zone principale : temp actuelle + prévisions -->
+<div class="grid grid-cols-12 gap-6 md:gap-10">
+
+<!-- Colonne gauche : temps actuel -->
+<div class="col-span-12 md:col-span-5 text-center md:text-left md:border-r md:border-outline-variant/30 md:pr-10">
+<div class="flex flex-col md:flex-row items-center md:items-start gap-6">
+<div id="weatherIcon" class="weather-icon-wrap">
+<img id="weatherIconImg" src="" alt="" class="w-full h-full"/>
+</div>
+<div>
+<div class="flex items-baseline justify-center md:justify-start gap-1">
+<span id="weatherTemp" class="font-display-lg text-display-lg md:text-[72px] text-primary leading-none">--</span>
+<span class="text-on-surface-variant/60 text-2xl mt-2">°C</span>
+</div>
+<div id="weatherDesc" class="font-body-lg text-body-lg text-on-surface-variant mt-1 capitalize">--</div>
+<div id="weatherFeelsLike" class="font-label-sm text-label-sm text-on-surface-variant/70 uppercase tracking-widest mt-2">Ressenti : -- °C</div>
+</div>
+</div>
+
+<!-- Détails -->
+<div class="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-outline-variant/30">
+<div class="text-center">
+<span class="material-symbols-outlined text-gold text-xl" style="font-variation-settings:'FILL' 0;">water_drop</span>
+<div id="weatherHumidity" class="font-headline-md text-headline-md text-primary mt-1">--%</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant/60 uppercase tracking-widest text-[10px]">Humidité</div>
+</div>
+<div class="text-center">
+<span class="material-symbols-outlined text-gold text-xl" style="font-variation-settings:'FILL' 0;">air</span>
+<div id="weatherWind" class="font-headline-md text-headline-md text-primary mt-1">--</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant/60 uppercase tracking-widest text-[10px]">Vent</div>
+</div>
+<div class="text-center">
+<span class="material-symbols-outlined text-gold text-xl" style="font-variation-settings:'FILL' 0;">visibility</span>
+<div id="weatherVisibility" class="font-headline-md text-headline-md text-primary mt-1">--</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant/60 uppercase tracking-widest text-[10px]">Visibilité</div>
+</div>
+</div>
+
+<!-- Lever / Coucher du soleil -->
+<div class="flex items-center justify-center md:justify-start gap-6 mt-5 pt-5 border-t border-outline-variant/30">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gold text-lg" style="font-variation-settings:'FILL' 0;">wb_twilight</span>
+<div>
+<div id="weatherSunrise" class="font-label-sm text-label-sm text-on-surface font-semibold">--:--</div>
+<div class="font-label-sm text-[10px] text-on-surface-variant/60 uppercase tracking-widest">Lever</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gold text-lg" style="font-variation-settings:'FILL' 0;">dark_mode</span>
+<div>
+<div id="weatherSunset" class="font-label-sm text-label-sm text-on-surface font-semibold">--:--</div>
+<div class="font-label-sm text-[10px] text-on-surface-variant/60 uppercase tracking-widest">Coucher</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Colonne droite : prévisions 5 jours -->
+<div class="col-span-12 md:col-span-7 mt-6 md:mt-0">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-gold text-base" style="font-variation-settings:'FILL' 0;">calendar_month</span>
+Prévisions 5 jours
+</div>
+<div id="weatherForecast" class="grid grid-cols-5 gap-2 sm:gap-3"></div>
+</div>
+</div>
+
+<!-- Bandeau conseil -->
+<div id="weatherAdvice" class="mt-6 pt-5 border-t border-outline-variant/30 flex items-center gap-3">
+<span class="material-symbols-outlined text-gold" style="font-variation-settings:'FILL' 0;">tips_and_updates</span>
+<span id="weatherAdviceText" class="font-body-md text-body-md text-on-surface-variant"></span>
+</div>
+
+<!-- Dernière mise à jour -->
+<div class="mt-4 flex items-center justify-between">
+<span id="weatherUpdated" class="font-label-sm text-[10px] text-on-surface-variant/50 uppercase tracking-widest">Mis à jour à --:--</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant/50 uppercase tracking-widest">Données OpenWeatherMap</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+
 <!-- Garden Map -->
 <section id="carte" class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto relative scroll-mt-24 overflow-hidden">
 <div class="kanji-watermark left-[-3rem] bottom-10" style="font-size:220px;">地図</div>
 <div class="text-center mb-16 fade-in-up">
-<span class="eyebrow font-label-sm text-label-sm text-gold-dark uppercase tracking-[0.2em] mb-5 block">Plan du jardin · 04</span>
+<span class="eyebrow font-label-sm text-label-sm text-gold-dark uppercase tracking-[0.2em] mb-5 block">Plan du jardin · 05</span>
 <h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary mb-4">Carte du jardin</h2>
 <div class="gold-rule w-28 mx-auto mb-6"></div>
 <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">Trois jardins, des étangs paisibles et des lieux de détente : explorez le plan et survolez les points d'intérêt pour composer votre promenade.</p>
@@ -1127,7 +1313,7 @@ Tokyo · Japan</span>
 <section id="booking" class="py-section-gap px-margin-mobile md:px-margin-desktop scroll-mt-24">
 <div class="max-w-container-max mx-auto">
 <div class="text-center mb-16 fade-in-up">
-<span class="eyebrow font-label-sm text-label-sm text-gold-dark uppercase tracking-[0.2em] mb-5 block">Visite · 05</span>
+<span class="eyebrow font-label-sm text-label-sm text-gold-dark uppercase tracking-[0.2em] mb-5 block">Visite · 06</span>
 <h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary mb-4">Réservez votre visite</h2>
 <div class="gold-rule w-28 mx-auto mb-6"></div>
 <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">Choisissez une date et un créneau horaire. La réservation est gratuite, l'entrée au jardin (500 ¥) se règle sur place.</p>
@@ -1184,7 +1370,7 @@ Tokyo · Japan</span>
 <section id="avis" class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto scroll-mt-24 relative overflow-hidden">
 <div class="kanji-watermark right-[-3rem] bottom-10" style="font-size:220px;">感想</div>
 <div class="text-center mb-16 fade-in-up">
-<span class="eyebrow font-label-sm text-label-sm text-gold-dark uppercase tracking-[0.2em] mb-5 block">Témoignages · 06</span>
+<span class="eyebrow font-label-sm text-label-sm text-gold-dark uppercase tracking-[0.2em] mb-5 block">Témoignages · 07</span>
 <h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary mb-4">Ils ont visité le jardin</h2>
 <div class="gold-rule w-28 mx-auto mb-6"></div>
 <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">Chaque avis enrichit la promenade des prochains visiteurs. Notez votre expérience et inspirez les autres.</p>
@@ -1426,24 +1612,31 @@ Tokyo · Japan</span>
      WIDGET MESSAGERIE WHATSAPP (Vonage)
      ============================================================ -->
 <button id="chatFab" aria-label="Ouvrir la messagerie">
-<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16.004 0h-.008C7.174 0 0 7.176 0 16c0 3.5 1.132 6.744 3.058 9.378L1.054 31.2l6.074-1.98A15.907 15.907 0 0016.004 32C24.826 32 32 24.822 32 16S24.826 0 16.004 0zm9.326 22.594c-.39 1.098-1.932 2.008-3.168 2.27-.842.178-1.94.32-5.654-1.216-4.756-1.966-7.806-6.79-8.04-7.104-.226-.314-1.896-2.524-1.896-4.814s1.2-3.41 1.626-3.878c.39-.428.926-.564 1.232-.564.15 0 .284.008.406.014.426.018.64.044.916.71.34.836 1.164 2.844 1.264 3.05.1.206.2.444.06.714-.134.28-.266.452-.496.698-.23.246-.464.55-.664.74-.2.198-.408.41-.174.796.234.384 1.038 1.716 2.226 2.782 1.528 1.37 2.816 1.796 3.21 1.994.394.198.624.166.852-.1.234-.268.996-1.162 1.262-1.56.262-.396.528-.332.894-.2.232.086 1.47.694 1.722.82.252.126.422.19.486.296.066.104.066.6-.324 1.1z" fill="#fff"/></svg>
+<span class="material-symbols-outlined" style="font-variation-settings:'FILL' 0;">chat</span>
 <span id="chatBadge">1</span>
 </button>
 
 <div id="chatWidget">
 <div class="chat-header">
-<div class="chat-avatar">S</div>
+<div class="chat-avatar">
+<span class="material-symbols-outlined" style="font-variation-settings:'FILL' 0;">park</span>
+</div>
 <div class="chat-header-info">
 <div class="name">Shinjuku Gyoen</div>
-<div class="status">En ligne</div>
+<div class="status"><span class="status-dot"></span>En ligne</div>
 </div>
-<button id="chatClose" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+<button id="chatClose" aria-label="Fermer">
+<span class="material-symbols-outlined" style="font-variation-settings:'FILL' 0;">close</span>
+</button>
 </div>
 
 <!-- Écran d'init : formulaire pour commencer -->
 <div class="chat-init" id="chatInit">
+<div class="chat-init-icon">
+<span class="material-symbols-outlined" style="font-variation-settings:'FILL' 0;">mail</span>
+</div>
 <h3>Besoin d'aide ?</h3>
-<p>Écrivez-nous, nous répondons rapidement.</p>
+<p>Écrivez-nous, nous répondons rapidement. Votre conversation sera transmise par WhatsApp.</p>
 <input type="text" id="chatName" placeholder="Votre nom" maxlength="120"/>
 <input type="tel" id="chatPhone" placeholder="Numéro WhatsApp (optionnel)" maxlength="20"/>
 <input type="email" id="chatEmail" placeholder="Votre email (optionnel)" maxlength="190"/>
@@ -1458,7 +1651,7 @@ Tokyo · Japan</span>
 <div class="chat-input-area" id="chatInputArea" style="display:none;">
 <input type="text" id="chatInput" placeholder="Écrivez un message..." maxlength="4000"/>
 <button id="chatSend" aria-label="Envoyer" disabled>
-<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z"/></svg>
+<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
 </button>
 </div>
 </div>

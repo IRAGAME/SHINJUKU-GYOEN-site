@@ -666,7 +666,7 @@ function initScrollEffects() {
 
     const nav = $('#mainNav');
     const progress = $('#scrollProgress');
-    const sections = ['histoire', 'jardins', 'carte', 'booking', 'avis']
+    const sections = ['histoire', 'jardins', 'meteo', 'carte', 'booking', 'avis']
         .map((id) => document.getElementById(id))
         .filter(Boolean);
     const navLinks = document.querySelectorAll('.nav-link, .menu-link');
@@ -1001,7 +1001,222 @@ function initMapPins() {
     });
 }
 
-/* ---------------- Initialisation ---------------- */
+/* ---------------- Météo (OpenWeatherMap) ---------------- */
+const WEATHER_API_KEY = '416934bea723a1c18e9d9a935c4a8a82';
+const WEATHER_LAT = 35.6852;
+const WEATHER_LON = 139.6917;
+const WEATHER_REFRESH_MS = 30 * 60 * 1000;
+
+const WEATHER_ICONS = {
+    '01d': '☀️', '01n': '🌙',
+    '02d': '⛅', '02n': '☁️',
+    '03d': '☁️', '03n': '☁️',
+    '04d': '☁️', '04n': '☁️',
+    '09d': '🌧️', '09n': '🌧️',
+    '10d': '🌦️', '10n': '🌧️',
+    '11d': '⛈️', '11n': '⛈️',
+    '13d': '❄️', '13n': '❄️',
+    '50d': '🌫️', '50n': '🌫️',
+};
+
+const WEATHER_TIPS = {
+    clear: 'Temps idéal pour une promenade en plein air. N\'oubliez pas votre crème solaire !',
+    clouds: 'Ciel couvert mais agréable pour explorer les jardins. Températures douces.',
+    rain: 'Prévoyez un parapluie ! Les jardins sous la pluie ont un charme unique.',
+    drizzle: 'Légère bruine, parfaite pour une ambiance contemplative dans le jardin japonais.',
+    thunderstorm: 'Attention, orage annoncé. Reportez votre visite si possible.',
+    snow: 'Le jardin sous la neige est magique ! Enfilez des vêtements chauds.',
+    mist: 'Brume matinale au jardin, atmosphère mystérieuse et poétique.',
+    fog: 'Brouillard épais, visibilité réduite. Les formes du jardin se devinent à peine.',
+};
+
+const WMO_DESCRIPTIONS = {
+    0: 'Ciel dégagé', 1: 'Peu nuageux', 2: 'Partiellement nuageux', 3: 'Couvert',
+    45: 'Brouillard', 48: 'Brouillard givrant',
+    51: 'Bruine légère', 53: 'Bruine modérée', 55: 'Bruine forte',
+    56: 'Bruine verglaçante', 57: 'Bruine verglaçante forte',
+    61: 'Pluie légère', 63: 'Pluie modérée', 65: 'Pluie forte',
+    66: 'Pluie verglaçante', 67: 'Pluie verglaçante forte',
+    71: 'Neige légère', 73: 'Neige modérée', 75: 'Neige forte',
+    76: 'Neige fondue', 77: 'Grésil',
+    80: 'Averses légères', 81: 'Averses modérées', 82: 'Averses violentes',
+    85: 'Averses de neige', 86: 'Averses de neige fortes',
+    95: 'Orage', 96: 'Orage avec grêle', 99: 'Orage violent',
+};
+
+const DAY_NAMES_FR = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+const MONTH_NAMES_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+
+function getWeatherIconUrl(iconCode) {
+    return 'https://openweathermap.org/img/wn/' + iconCode + '@2x.png';
+}
+
+function wmoToOwmIcon(wmoCode) {
+    if (wmoCode === 0) return '01d';
+    if (wmoCode === 1) return '02d';
+    if (wmoCode === 2) return '03d';
+    if (wmoCode === 3) return '04d';
+    if (wmoCode === 45 || wmoCode === 48) return '50d';
+    if (wmoCode >= 51 && wmoCode <= 57) return '10d';
+    if (wmoCode >= 61 && wmoCode <= 67) return '10d';
+    if (wmoCode >= 71 && wmoCode <= 77) return '13d';
+    if (wmoCode >= 80 && wmoCode <= 82) return '09d';
+    if (wmoCode >= 85 && wmoCode <= 86) return '13d';
+    if (wmoCode >= 95) return '11d';
+    return '03d';
+}
+
+function formatTimeUnix(unix, timezoneOffset) {
+    const d = new Date((unix + timezoneOffset) * 1000);
+    const h = d.getUTCHours().toString().padStart(2, '0');
+    const m = d.getUTCMinutes().toString().padStart(2, '0');
+    return h + ':' + m;
+}
+
+function formatForecastDay(dt, timezoneOffset) {
+    const d = new Date((dt + timezoneOffset) * 1000);
+    return DAY_NAMES_FR[d.getUTCDay()];
+}
+
+async function fetchWeather() {
+    const loadingEl = $('#weatherLoading');
+    const errorEl = $('#weatherError');
+    const contentEl = $('#weatherContent');
+
+    loadingEl.classList.remove('hidden');
+    loadingEl.classList.add('flex');
+    errorEl.classList.add('hidden');
+    contentEl.classList.add('hidden');
+
+    try {
+        const currentUrl = 'https://api.openweathermap.org/data/2.5/weather?lat=' + WEATHER_LAT + '&lon=' + WEATHER_LON + '&appid=' + WEATHER_API_KEY + '&units=metric&lang=fr';
+        const forecastUrl = 'https://api.openweathermap.org/data/2.5/forecast?lat=' + WEATHER_LAT + '&lon=' + WEATHER_LON + '&appid=' + WEATHER_API_KEY + '&units=metric&lang=fr';
+
+        const [currentRes, forecastRes] = await Promise.all([
+            fetch(currentUrl),
+            fetch(forecastUrl)
+        ]);
+
+        if (!currentRes.ok || !forecastRes.ok) {
+            throw new Error('Erreur API météo (' + currentRes.status + ')');
+        }
+
+        const currentData = await currentRes.json();
+        const forecastData = await forecastRes.json();
+
+        renderWeather(currentData, forecastData);
+
+        loadingEl.classList.add('hidden');
+        loadingEl.classList.remove('flex');
+        contentEl.classList.remove('hidden');
+
+        const now = new Date();
+        $('#weatherUpdated').textContent = 'Mis à jour à ' + now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+    } catch (err) {
+        loadingEl.classList.add('hidden');
+        loadingEl.classList.remove('flex');
+        errorEl.classList.remove('hidden');
+        errorEl.classList.add('flex');
+        $('#weatherErrorMsg').textContent = 'Impossible de charger les données météo. ' + err.message;
+    }
+}
+
+function renderWeather(current, forecast) {
+    const tzOffset = forecast.city.timezone;
+
+    const now = new Date();
+    const dayOfWeek = DAY_NAMES_FR[now.getDay()];
+    const dayOfMonth = now.getDate();
+    const monthName = MONTH_NAMES_FR[now.getMonth()];
+    $('#weatherDate').textContent = dayOfWeek + ' ' + dayOfMonth + ' ' + monthName;
+
+    $('#weatherTemp').textContent = Math.round(current.main.temp);
+    const wmoCode = current.weather[0].id;
+    const weatherDesc = current.weather[0].description;
+    $('#weatherDesc').textContent = weatherDesc.charAt(0).toUpperCase() + weatherDesc.slice(1);
+    $('#weatherFeelsLike').textContent = 'Ressenti : ' + Math.round(current.main.feels_like) + ' °C';
+
+    const iconCode = current.weather[0].icon;
+    const iconImg = $('#weatherIconImg');
+    iconImg.src = getWeatherIconUrl(iconCode);
+    iconImg.alt = weatherDesc;
+
+    $('#weatherHumidity').textContent = current.main.humidity + '%';
+    $('#weatherWind').textContent = Math.round(current.wind.speed * 3.6) + ' km/h';
+    const vis = current.visibility;
+    if (vis >= 10000) {
+        $('#weatherVisibility').textContent = '10+ km';
+    } else {
+        $('#weatherVisibility').textContent = Math.round(vis / 1000) + ' km';
+    }
+
+    $('#weatherSunrise').textContent = formatTimeUnix(current.sys.sunrise, tzOffset);
+    $('#weatherSunset').textContent = formatTimeUnix(current.sys.sunset, tzOffset);
+
+    const mainWeather = current.weather[0].main.toLowerCase();
+    let tipKey = 'clear';
+    if (mainWeather.includes('rain')) tipKey = 'rain';
+    else if (mainWeather.includes('drizzle')) tipKey = 'drizzle';
+    else if (mainWeather.includes('thunder')) tipKey = 'thunderstorm';
+    else if (mainWeather.includes('snow')) tipKey = 'snow';
+    else if (mainWeather.includes('mist') || mainWeather.includes('fog')) tipKey = 'fog';
+    else if (mainWeather.includes('cloud')) tipKey = 'clouds';
+    else if (mainWeather === 'mist') tipKey = 'mist';
+    $('#weatherAdviceText').textContent = WEATHER_TIPS[tipKey] || WEATHER_TIPS.clear;
+
+    const forecastContainer = $('#weatherForecast');
+    forecastContainer.innerHTML = '';
+
+    const dailyForecasts = {};
+    for (const entry of forecast.list) {
+        const date = new Date((entry.dt + tzOffset) * 1000);
+        const dateKey = date.getUTCFullYear() + '-' + (date.getUTCMonth() + 1) + '-' + date.getUTCDate();
+        if (dateKey === now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate()) continue;
+
+        if (!dailyForecasts[dateKey]) {
+            dailyForecasts[dateKey] = {
+                dt: entry.dt,
+                temps: [],
+                icons: [],
+                descriptions: [],
+                wmoCodes: [],
+            };
+        }
+        dailyForecasts[dateKey].temps.push(entry.main.temp);
+        dailyForecasts[dateKey].icons.push(entry.weather[0].icon);
+        dailyForecasts[dateKey].wmoCodes.push(entry.weather[0].id);
+        dailyForecasts[dateKey].descriptions.push(entry.weather[0].description);
+    }
+
+    const days = Object.values(dailyForecasts).slice(0, 5);
+
+    for (const day of days) {
+        const avgTemp = day.temps.reduce((a, b) => a + b, 0) / day.temps.length;
+        const minTemp = Math.min(...day.temps);
+        const dayName = formatForecastDay(day.dt, tzOffset);
+
+        const midIconIdx = Math.floor(day.icons.length / 2);
+        const iconCode = day.icons[midIconIdx];
+
+        const card = document.createElement('div');
+        card.className = 'forecast-card';
+        card.innerHTML = '<span class="forecast-day">' + dayName + '</span>'
+            + '<span class="forecast-icon"><img src="' + getWeatherIconUrl(iconCode) + '" alt=""/></span>'
+            + '<span class="forecast-temp">' + Math.round(avgTemp) + '°</span>'
+            + '<span class="forecast-temp-min">' + Math.round(minTemp) + '°</span>';
+        forecastContainer.appendChild(card);
+    }
+}
+
+function initWeather() {
+    if (isOffline()) return;
+    fetchWeather();
+    setInterval(fetchWeather, WEATHER_REFRESH_MS);
+
+    const retryBtn = $('#weatherRetry');
+    if (retryBtn) retryBtn.addEventListener('click', fetchWeather);
+}
 document.addEventListener('DOMContentLoaded', () => {
     initScrollEffects();
     initMobileMenu();
@@ -1013,6 +1228,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupStarPicker();
     initPasswordEyes();
     initPasswordMeter();
+    initWeather();
 
     $('#btnLogin').addEventListener('click', () => openAuthModal('login'));
     $('#btnLogout').addEventListener('click', handleLogout);
