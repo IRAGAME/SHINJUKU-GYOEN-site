@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 // ─── Vonage API ────────────────────────────────────────────
 define('VONAGE_API_KEY', '6effc78e');
-define('VONAGE_API_SECRET', '$YOUR_API_SECRET');
+define('VONAGE_API_SECRET', 'OASQ0bxD)EIAhgfIwCw');
 
 // Numéro Vonage sandbox (celui qui envoie les notifications)
 define('VONAGE_WHATSAPP_FROM', '14157386102');
