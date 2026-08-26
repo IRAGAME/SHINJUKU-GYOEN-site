@@ -31,48 +31,54 @@ final class MessageController
     public static function store(): void
     {
         $in  = json_input();
-        $pdo = getPDO();
-
         $name  = str_field($in, 'visitor_name', 120);
-        $phone = $in['visitor_phone'] ?? null;
-        $email = $in['visitor_email'] ?? null;
         $body  = str_field($in, 'body', 4000, true, 1);
 
-        // Si un conversation_id est fourni, ajouter un message à la conversation existante
-        $convId = isset($in['conversation_id']) ? (int)$in['conversation_id'] : 0;
+        $waResult = null;
+        $convId   = 0;
 
-        if ($convId > 0) {
-            $stmt = $pdo->prepare('SELECT id FROM conversations WHERE id = ?');
-            $stmt->execute([$convId]);
-            if (!$stmt->fetch()) {
-                json_error('not_found', 'Conversation introuvable.', 404);
+        // Essayer d'enregistrer en BDD (peut échouer si pas de BDD)
+        try {
+            $pdo = getPDO();
+            $phone = $in['visitor_phone'] ?? null;
+            $email = $in['visitor_email'] ?? null;
+
+            $convId = isset($in['conversation_id']) ? (int)$in['conversation_id'] : 0;
+
+            if ($convId > 0) {
+                $stmt = $pdo->prepare('SELECT id FROM conversations WHERE id = ?');
+                $stmt->execute([$convId]);
+                if (!$stmt->fetch()) {
+                    $convId = 0;
+                }
             }
-        } else {
-            // Créer une nouvelle conversation
+
+            if ($convId === 0) {
+                $stmt = $pdo->prepare(
+                    "INSERT INTO conversations (visitor_name, visitor_phone, visitor_email)
+                     VALUES (?, ?, ?)"
+                );
+                $stmt->execute([$name, $phone ?: null, $email ?: null]);
+                $convId = (int)$pdo->lastInsertId();
+            }
+
             $stmt = $pdo->prepare(
-                'INSERT INTO conversations (visitor_name, visitor_phone, visitor_email)
-                 VALUES (?, ?, ?)'
+                "INSERT INTO messages (conversation_id, sender, body)
+                 VALUES (?, 'visitor', ?)"
             );
-            $stmt->execute([$name, $phone ?: null, $email ?: null]);
-            $convId = (int)$pdo->lastInsertId();
+            $stmt->execute([$convId, $body]);
+        } catch (\Throwable $e) {
+            $convId = 0;
         }
 
-        // Insérer le message visiteur
-        $stmt = $pdo->prepare(
-            "INSERT INTO messages (conversation_id, sender, body)
-             VALUES (?, 'visitor', ?)"
-        );
-        $stmt->execute([$convId, $body]);
-
-        $msgId = (int)$pdo->lastInsertId();
-
-        // Envoyer à l'admin via WhatsApp
-        $waResult = self::notifyAdminViaWhatsApp($convId, $name, $body);
+        // Envoyer à l'admin via WhatsApp (Vonage)
+        if (whatsapp_is_configured()) {
+            $waResult = self::notifyAdminViaWhatsApp($convId ?: time(), $name, $body);
+        }
 
         json_success([
             'conversation_id' => $convId,
-            'message_id'      => $msgId,
-            'whatsapp_sent'   => $waResult['ok'],
+            'whatsapp_sent'   => $waResult['whatsapp']['ok'] ?? false,
         ], 201);
     }
 
