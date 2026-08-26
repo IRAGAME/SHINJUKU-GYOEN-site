@@ -4,83 +4,81 @@ declare(strict_types=1);
 
 /**
  * ============================================================
- *  SHINJUKU GYOEN - Configuration WhatsApp Business API
+ *  SHINJUKU GYOEN - Configuration WhatsApp via Twilio
  * ============================================================
- *  Pour activer l'intégration WhatsApp, vous devez :
- *  1. Créer un compte Meta Business (business.facebook.com)
- *  2. Activer WhatsApp Business Platform
- *  3. Configurer un numéro de téléphone WhatsApp Business
- *  4. Créer une application Meta et obtenir un Access Token
- *  5. Configurer un webhook URL pointing vers :
- *     https://votre-domaine/api/index.php?route=messages/webhook
+ *  Twilio permet d'envoyer des messages WhatsApp sans compte
+ *  Meta Business vérifié. Le mode "Sandbox" (gratuit) suffit
+ *  pour les tests et projets étudiants.
  *
- *  Une fois fait, remplissez les constantes ci-dessous.
+ *  Comment démarrer :
+ *  1. Créez un compte gratuit : https://www.twilio.com/try-twilio
+ *  2. Allez dans Console → Messaging → WhatsApp → Try out WhatsApp
+ *  3. Scannez le QR code ou envoyez le message "join <mot>" au numéro Twilio
+ *  4. Copiez votre Account SID et Auth Token depuis twilio.com/console
+ *  5. Copiez le numéro WhatsApp Twilio (format: +14155238886)
+ *  6. Remplissez les constantes ci-dessous
  * ============================================================
  */
 
-// Token d'accès à l'API Cloud WhatsApp (Meta)
-// Généré dans Meta Developer Dashboard > WhatsApp > API Setup
-define('WHATSAPP_API_TOKEN', '');
+// Account SID — twilio.com/console (commence par "AC")
+define('TWILIO_ACCOUNT_SID', '');
 
-// Numéro de téléphone WhatsApp Business (format: sans + ni espaces)
-// Ex: 25766061745
-define('WHATSAPP_PHONE_NUMBER_ID', '');
+// Auth Token — twilio.com/console
+define('TWILIO_AUTH_TOKEN', '');
 
-// Numéro WhatsApp de l'admin qui reçoit les messages (format international avec +)
-// Ex: +25766061745
-define('WHATSAPP_ADMIN_PHONE', '+25766061745');
+// Numéro WhatsApp Twilio (Sandbox)
+// En trial : +14155238886 (numéro Twilio par défaut)
+// En prod : votre propre numéro Twilio WhatsApp
+define('TWILIO_WHATSAPP_FROM', 'whatsapp:+14155238886');
 
-// Identifiant du WhatsApp Business Account (trouvable dans Meta Business Manager)
-// Comment trouver :
-//   1. business.facebook.com → Paramètres → Comptes WhatsApp Business
-//   2. L'id est dans l'URL : .../whatsapp-business-accounts/123456789012345
-//   3. Ou dans developers.facebook.com → WhatsApp → Configuration de l'API
-define('WHATSAPP_BUSINESS_ACCOUNT_ID', '');
+// Numéro WhatsApp de l'admin (format international avec +)
+define('WHATSAPP_ADMIN_PHONE', 'whatsapp:+25766061745');
 
-// URL de base de l'API WhatsApp Cloud
-define('WHATSAPP_API_BASE', 'https://graph.facebook.com/v18.0');
+// URL de base de l'API Twilio
+define('TWILIO_API_BASE', 'https://api.twilio.com/2010-04-01');
 
 /**
- * Vérifie si l'API WhatsApp est configurée.
+ * Vérifie si Twilio est configuré.
  */
 function whatsapp_is_configured(): bool
 {
-    return WHATSAPP_API_TOKEN !== '' && WHATSAPP_PHONE_NUMBER_ID !== '';
+    return TWILIO_ACCOUNT_SID !== '' && TWILIO_AUTH_TOKEN !== '';
 }
 
 /**
- * Envoie un message texte via l'API WhatsApp Cloud.
+ * Envoie un message texte via Twilio WhatsApp.
  *
- * @param string $to      Numéro de destination (avec +)
- * @param string $text    Contenu du message
+ * @param string $to   Numéro WhatsApp destination (format: whatsapp:+XXXXXXXXXX)
+ * @param string $text Contenu du message
  * @return array{ok: bool, error?: string, message_id?: string}
  */
 function whatsapp_send_message(string $to, string $text): array
 {
     if (!whatsapp_is_configured()) {
-        return ['ok' => false, 'error' => 'WhatsApp API non configurée.'];
+        return ['ok' => false, 'error' => 'Twilio WhatsApp non configuré.'];
     }
 
-    // Nettoyer le numéro : garder que les chiffres
-    $toClean = preg_replace('/[^0-9]/', '', $to);
+    // S'assurer que le numéro a le préfixe whatsapp:
+    if (strpos($to, 'whatsapp:') !== 0) {
+        $to = 'whatsapp:' . ltrim($to, '+');
+    }
 
-    $url = WHATSAPP_API_BASE . '/' . WHATSAPP_PHONE_NUMBER_ID . '/messages';
+    $url = TWILIO_API_BASE . '/Accounts/' . TWILIO_ACCOUNT_SID . '/Messages.json';
 
-    $payload = [
-        'messaging_product' => 'whatsapp',
-        'to'                => $toClean,
-        'type'              => 'text',
-        'text'              => ['body' => $text],
-    ];
+    $payload = http_build_query([
+        'From' => TWILIO_WHATSAPP_FROM,
+        'To'   => $to,
+        'Body' => $text,
+    ]);
 
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_POST           => true,
-        CURLOPT_POSTFIELDS     => json_encode($payload),
+        CURLOPT_POSTFIELDS     => $payload,
         CURLOPT_HTTPHEADER     => [
-            'Authorization: Bearer ' . WHATSAPP_API_TOKEN,
-            'Content-Type: application/json',
+            'Content-Type: application/x-www-form-urlencoded',
         ],
+        CURLOPT_USERPWD        => TWILIO_ACCOUNT_SID . ':' . TWILIO_AUTH_TOKEN,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT        => 15,
     ]);
@@ -95,197 +93,96 @@ function whatsapp_send_message(string $to, string $text): array
 
     $data = json_decode($response, true);
 
-    if ($httpCode >= 200 && $httpCode < 300 && isset($data['messages'][0]['id'])) {
-        return ['ok' => true, 'message_id' => $data['messages'][0]['id']];
+    if ($httpCode >= 200 && $httpCode < 300 && isset($data['sid'])) {
+        return ['ok' => true, 'message_id' => $data['sid']];
     }
 
-    $errorMsg = $data['error']['message'] ?? 'Erreur inconnue';
+    $errorMsg = $data['message'] ?? $data['error_message'] ?? 'Erreur inconnue';
     return ['ok' => false, 'error' => $errorMsg];
 }
 
 /**
- * Vérifie la signature du webhook WhatsApp (sécurité).
- *
- * @param string $signature  En-tête X-Hub-Signature-256
- * @param string $rawBody    Corps brut de la requête
- * @param string $secret     Clé secrète du webhook (app secret)
+ * Vérifie la signature du webhook Twilio (sécurité).
  */
-function whatsapp_verify_signature(string $signature, string $rawBody, string $secret): bool
+function whatsapp_verify_signature(string $signature, string $rawBody, string $token): bool
 {
-    if ($secret === '') {
-        return true; // Pas de secret configuré = pas de vérification
-    }
-    $expected = 'sha256=' . hash_hmac('sha256', $rawBody, $secret);
-    return hash_equals($expected, $signature);
+    $expected = hash_hmac('sha1', $rawBody, $token);
+    return hash_equals('sha1=' . $expected, $signature);
 }
 
 /**
  * Récupère la liste des templates WhatsApp pour un WABA.
- *
- * @param string $wabaId   WhatsApp Business Account ID (optionnel, utilise la constante par défaut)
- * @param int    $limit    Nombre max de résultats (défaut 50)
- * @param string $status   Filtrer par status : APPROVED, PENDING, REJECTED, VIDEO_IN_PROCESS (vide = tous)
- * @return array{ok: bool, error?: string, data?: array}
+ * (Non disponible via Twilio Sandbox — retourne une erreur explicative)
  */
 function whatsapp_get_templates(string $wabaId = '', int $limit = 50, string $status = ''): array
 {
-    if (!whatsapp_is_configured()) {
-        return ['ok' => false, 'error' => 'WhatsApp API non configurée.'];
-    }
-
-    $wabaId = $wabaId ?: WHATSAPP_BUSINESS_ACCOUNT_ID;
-    if ($wabaId === '') {
-        return ['ok' => false, 'error' => 'WhatsApp Business Account ID non configuré.'];
-    }
-
-    $params = ['limit' => $limit];
-    if ($status !== '') {
-        $params['status'] = $status;
-    }
-
-    $url = WHATSAPP_API_BASE . '/' . $wabaId . '/message_templates?' . http_build_query($params);
-
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_HTTPHEADER     => [
-            'Authorization: Bearer ' . WHATSAPP_API_TOKEN,
-        ],
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 15,
-    ]);
-
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($response === false) {
-        return ['ok' => false, 'error' => 'Échec de la requête cURL.'];
-    }
-
-    $data = json_decode($response, true);
-
-    if ($httpCode >= 200 && $httpCode < 300) {
-        return [
-            'ok'   => true,
-            'data' => $data['data'] ?? [],
-            'paging' => $data['paging'] ?? null,
-        ];
-    }
-
-    $errorMsg = $data['error']['message'] ?? 'Erreur inconnue';
-    return ['ok' => false, 'error' => $errorMsg];
+    return [
+        'ok'    => false,
+        'error' => 'Les templates Meta ne sont pas disponibles via Twilio. Utilisez le mode texte libre avec Twilio Sandbox.',
+    ];
 }
 
 /**
  * Récupère les détails d'un template spécifique.
- *
- * @param string $templateName  Nom du template (ex: "reservation_confirm")
- * @return array{ok: bool, error?: string, data?: array}
  */
 function whatsapp_get_template(string $templateName): array
 {
-    if (!whatsapp_is_configured()) {
-        return ['ok' => false, 'error' => 'WhatsApp API non configurée.'];
-    }
-
-    $wabaId = WHATSAPP_BUSINESS_ACCOUNT_ID;
-    if ($wabaId === '') {
-        return ['ok' => false, 'error' => 'WhatsApp Business Account ID non configuré.'];
-    }
-
-    $url = WHATSAPP_API_BASE . '/' . $wabaId . '/message_templates?name=' . urlencode($templateName);
-
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_HTTPHEADER     => [
-            'Authorization: Bearer ' . WHATSAPP_API_TOKEN,
-        ],
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 15,
-    ]);
-
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($response === false) {
-        return ['ok' => false, 'error' => 'Échec de la requête cURL.'];
-    }
-
-    $data = json_decode($response, true);
-
-    if ($httpCode >= 200 && $httpCode < 300) {
-        $templates = $data['data'] ?? [];
-        return [
-            'ok'   => true,
-            'data' => $templates[0] ?? null,
-        ];
-    }
-
-    $errorMsg = $data['error']['message'] ?? 'Erreur inconnue';
-    return ['ok' => false, 'error' => $errorMsg];
+    return [
+        'ok'    => false,
+        'error' => 'Les templates Meta ne sont pas disponibles via Twilio.',
+    ];
 }
 
 /**
- * Envoie un message template WhatsApp (confirmations, notifications, etc.).
+ * Envoie un message template via Twilio WhatsApp.
+ * En mode Sandbox, Twilio utilise ses propres templates (via ContentSid).
  *
- * @param string $to           Numéro de destination (avec +)
- * @param string $templateName Nom du template approuvé
- * @param string $langCode     Code langue (défaut: "fr")
- * @param array  $params       Paramètres du template [{type: "body", parameters: [{type: "text", text: "..."}]}]
+ * @param string $to           Numéro destination (format: whatsapp:+XXXXXXXXXX)
+ * @param string $templateName Nom du template Twilio (ContentSid ou nom)
+ * @param string $langCode     Code langue (non utilisé par Twilio directement)
+ * @param array  $params       Variables du template [key => value]
  * @return array{ok: bool, error?: string, message_id?: string}
  */
 function whatsapp_send_template(string $to, string $templateName, string $langCode = 'fr', array $params = []): array
 {
     if (!whatsapp_is_configured()) {
-        return ['ok' => false, 'error' => 'WhatsApp API non configurée.'];
+        return ['ok' => false, 'error' => 'Twilio WhatsApp non configuré.'];
     }
 
-    $toClean = preg_replace('/[^0-9]/', '', $to);
-    $url = WHATSAPP_API_BASE . '/' . WHATSAPP_PHONE_NUMBER_ID . '/messages';
-
-    // Construire les composants du template
-    $components = [];
-
-    // Composant body avec les paramètres
-    if (!empty($params)) {
-        $bodyParams = [];
-        foreach ($params as $value) {
-            $bodyParams[] = [
-                'type' => 'text',
-                'text' => (string)$value,
-            ];
-        }
-        $components[] = [
-            'type'       => 'body',
-            'parameters' => $bodyParams,
-        ];
+    // S'assurer que le numéro a le préfixe whatsapp:
+    if (strpos($to, 'whatsapp:') !== 0) {
+        $to = 'whatsapp:' . ltrim($to, '+');
     }
 
-    $payload = [
-        'messaging_product' => 'whatsapp',
-        'to'                => $toClean,
-        'type'              => 'template',
-        'template'          => [
-            'name' => $templateName,
-            'language' => [
-                'code' => $langCode,
-            ],
-        ],
+    $url = TWILIO_API_BASE . '/Accounts/' . TWILIO_ACCOUNT_SID . '/Messages.json';
+
+    $payloadData = [
+        'From'      => TWILIO_WHATSAPP_FROM,
+        'To'        => $to,
+        'ContentSid' => $templateName,
     ];
 
-    if (!empty($components)) {
-        $payload['template']['components'] = $components;
+    // Variables du template (ContentVariables)
+    if (!empty($params)) {
+        $variables = [];
+        $i = 1;
+        foreach ($params as $value) {
+            $variables[(string)$i] = (string)$value;
+            $i++;
+        }
+        $payloadData['ContentVariables'] = json_encode($variables);
     }
+
+    $payload = http_build_query($payloadData);
 
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_POST           => true,
-        CURLOPT_POSTFIELDS     => json_encode($payload),
+        CURLOPT_POSTFIELDS     => $payload,
         CURLOPT_HTTPHEADER     => [
-            'Authorization: Bearer ' . WHATSAPP_API_TOKEN,
-            'Content-Type: application/json',
+            'Content-Type: application/x-www-form-urlencoded',
         ],
+        CURLOPT_USERPWD        => TWILIO_ACCOUNT_SID . ':' . TWILIO_AUTH_TOKEN,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT        => 15,
     ]);
@@ -300,52 +197,21 @@ function whatsapp_send_template(string $to, string $templateName, string $langCo
 
     $data = json_decode($response, true);
 
-    if ($httpCode >= 200 && $httpCode < 300 && isset($data['messages'][0]['id'])) {
-        return ['ok' => true, 'message_id' => $data['messages'][0]['id']];
+    if ($httpCode >= 200 && $httpCode < 300 && isset($data['sid'])) {
+        return ['ok' => true, 'message_id' => $data['sid']];
     }
 
-    $errorMsg = $data['error']['message'] ?? 'Erreur inconnue';
+    $errorMsg = $data['message'] ?? $data['error_message'] ?? 'Erreur inconnue';
     return ['ok' => false, 'error' => $errorMsg];
 }
 
 /**
- * Supprime un template WhatsApp.
- *
- * @param string $templateName  Nom du template à supprimer
- * @return array{ok: bool, error?: string}
+ * Supprime un template WhatsApp. (Non supporté via Twilio)
  */
 function whatsapp_delete_template(string $templateName): array
 {
-    if (!whatsapp_is_configured()) {
-        return ['ok' => false, 'error' => 'WhatsApp API non configurée.'];
-    }
-
-    $wabaId = WHATSAPP_BUSINESS_ACCOUNT_ID;
-    if ($wabaId === '') {
-        return ['ok' => false, 'error' => 'WhatsApp Business Account ID non configuré.'];
-    }
-
-    $url = WHATSAPP_API_BASE . '/' . $wabaId . '/message_templates?name=' . urlencode($templateName);
-
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_CUSTOMREQUEST  => 'DELETE',
-        CURLOPT_HTTPHEADER     => [
-            'Authorization: Bearer ' . WHATSAPP_API_TOKEN,
-        ],
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 15,
-    ]);
-
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($httpCode >= 200 && $httpCode < 300) {
-        return ['ok' => true];
-    }
-
-    $data = json_decode($response ?? '{}', true);
-    $errorMsg = $data['error']['message'] ?? 'Erreur inconnue';
-    return ['ok' => false, 'error' => $errorMsg];
+    return [
+        'ok'    => false,
+        'error' => 'La suppression de templates n\'est pas disponible via Twilio.',
+    ];
 }
