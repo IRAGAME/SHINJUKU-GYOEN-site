@@ -4,87 +4,58 @@ declare(strict_types=1);
 
 /**
  * ============================================================
- *  SHINJUKU GYOEN - Configuration Messagerie WhatsApp
+ *  SHINJUKU GYOEN - Configuration Messagerie
  * ============================================================
- *  Utilise CallMeBot API (gratuit, pas de compte requis).
+ *  Le chat widget envoie les messages directement sur
+ *  WhatsApp de l'admin via un lien wa.me.
  *
- *  Comment activer (2 minutes) :
- *  1. Ouvrez WhatsApp sur votre téléphone
- *  2. Envoyez un message au numéro : +34 644 71 81 91
- *  3. Envoyez exactement : "I allow callmebot to send me messages"
- *  4. Vous recevrez un message avec votre API Key
- *  5. Copiez cette clé et collez-la ci-dessous
+ *  Le visiteur clique sur le bouton WhatsApp → s'ouvre une
+ *  conversation WhatsApp avec le message pré-rempli.
  *
- *  Ensuite :
- *  - Le prof envoie un message sur votre site
- *  - Vous recevez le message sur WhatsApp via CallMeBot
- *  - Vous répondez depuis le site admin (admin.php)
+ *  Pas besoin de compte, pas d'API, pas de vérification.
  * ============================================================
  */
 
-// API Key CallMeBot (reçue après avoir envoyé le message d'activation)
-// Format : "apikey=XXXXXXXXX"
-define('CALLMEBOT_API_KEY', '');
-
 // Numéro WhatsApp de l'admin (format international sans +)
 // Ex: 25766061745
-define('CALLMEBOT_PHONE', '25766061745');
-
-// Email admin pour backup (reçoit aussi les notifications)
-define('ADMIN_EMAIL', 'iragame1@gmail.com');
+define('WHATSAPP_ADMIN_PHONE', '25766061745');
 
 // Nom du site
 define('SITE_NAME', 'Shinjuku Gyoen');
 
+// Email admin (backup notifications)
+define('ADMIN_EMAIL', 'iragame1@gmail.com');
+
 /**
- * Vérifie si CallMeBot est configuré.
+ * Vérifie si WhatsApp est configuré.
  */
 function whatsapp_is_configured(): bool
 {
-    return CALLMEBOT_API_KEY !== '';
+    return WHATSAPP_ADMIN_PHONE !== '';
 }
 
 /**
- * Envoie un message WhatsApp via CallMeBot.
+ * Génère un lien WhatsApp Click-to-Chat.
  *
- * @param string $to   Numéro destination (format: 25766061745)
- * @param string $text Contenu du message
- * @return array{ok: bool, error?: string, message_id?: string}
+ * @param string $message Message pré-rempli
+ * @return string URL wa.me
+ */
+function whatsapp_get_link(string $message = ''): string
+{
+    $phone = preg_replace('/[^0-9]/', '', WHATSAPP_ADMIN_PHONE);
+    $url = 'https://wa.me/' . $phone;
+    if ($message !== '') {
+        $url .= '?text=' . urlencode($message);
+    }
+    return $url;
+}
+
+/**
+ * Stub pour compatibilité (pas d'envoi API).
  */
 function whatsapp_send_message(string $to, string $text): array
 {
-    if (!whatsapp_is_configured()) {
-        return ['ok' => false, 'error' => 'CallMeBot non configuré. Envoyez "I allow callmebot to send me messages" au +34 644 71 81 91 sur WhatsApp.'];
-    }
-
-    // Nettoyer le numéro
-    $phone = preg_replace('/[^0-9]/', '', $to);
-
-    $url = 'https://api.callmebot.com/whatsapp.php?source=php'
-         . '&phone=' . urlencode($phone)
-         . '&text=' . urlencode($text)
-         . '&apikey=' . urlencode(CALLMEBOT_API_KEY);
-
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 15,
-    ]);
-
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($response === false) {
-        return ['ok' => false, 'error' => 'Échec de la requête cURL.'];
-    }
-
-    // CallMeBot retourne le message envoyé en cas de succès
-    if ($httpCode >= 200 && $httpCode < 300) {
-        return ['ok' => true, 'message_id' => 'callmebot_' . time()];
-    }
-
-    return ['ok' => false, 'error' => 'Erreur CallMeBot (HTTP ' . $httpCode . '): ' . ($response ?: 'Inconnue')];
+    return ['ok' => false, 'error' => 'Mode lien direct — utilisez wa.me'];
 }
 
 /**
@@ -125,28 +96,8 @@ function notify_admin_email(string $visitorName, string $body, int $convId): boo
     return mail(ADMIN_EMAIL, $subject, $html, $headers);
 }
 
-/**
- * Vérifie la signature du webhook (stub pour compatibilité).
- */
-function whatsapp_verify_signature(string $signature, string $rawBody, string $token): bool
-{
-    return true;
-}
-
-// Stubs pour les templates (non utilisés)
-function whatsapp_get_templates(string $wabaId = '', int $limit = 50, string $status = ''): array
-{
-    return ['ok' => false, 'error' => 'Non disponible avec CallMeBot.'];
-}
-function whatsapp_get_template(string $templateName): array
-{
-    return ['ok' => false, 'error' => 'Non disponible avec CallMeBot.'];
-}
-function whatsapp_send_template(string $to, string $templateName, string $langCode = 'fr', array $params = []): array
-{
-    return ['ok' => false, 'error' => 'Non disponible avec CallMeBot.'];
-}
-function whatsapp_delete_template(string $templateName): array
-{
-    return ['ok' => false, 'error' => 'Non disponible avec CallMeBot.'];
-}
+function whatsapp_verify_signature(string $signature, string $rawBody, string $token): bool { return true; }
+function whatsapp_get_templates(string $wabaId = '', int $limit = 50, string $status = ''): array { return ['ok' => false]; }
+function whatsapp_get_template(string $templateName): array { return ['ok' => false]; }
+function whatsapp_send_template(string $to, string $templateName, string $langCode = 'fr', array $params = []): array { return ['ok' => false]; }
+function whatsapp_delete_template(string $templateName): array { return ['ok' => false]; }
