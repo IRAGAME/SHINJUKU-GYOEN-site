@@ -159,10 +159,8 @@ function switchAuthTab(tab) {
     const login = tab === 'login';
     $('#loginForm').classList.toggle('hidden', !login);
     $('#registerForm').classList.toggle('hidden', login);
-    $('#tabLogin').className = 'flex-1 px-4 py-2 font-label-sm text-label-sm uppercase tracking-widest rounded-lg transition-colors '
-        + (login ? 'bg-primary text-on-primary' : 'bg-surface-container-high text-on-surface-variant');
-    $('#tabRegister').className = 'flex-1 px-4 py-2 font-label-sm text-label-sm uppercase tracking-widest rounded-lg transition-colors '
-        + (login ? 'bg-surface-container-high text-on-surface-variant' : 'bg-primary text-on-primary');
+    $('#tabLogin').classList.toggle('active', login);
+    $('#tabRegister').classList.toggle('active', !login);
     $('#loginMsg').classList.add('hidden');
     $('#registerMsg').classList.add('hidden');
     ['loginEmail', 'loginPassword', 'regUsername', 'regEmail', 'regFullName', 'regPassword', 'regPassword2']

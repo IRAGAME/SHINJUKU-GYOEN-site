@@ -358,39 +358,58 @@
         .star-btn:hover { transform: scale(1.25); }
         #authModal { display: none; }
         #authModal.open { display: flex; }
+        .auth-tabs { display: flex; position: relative; border-bottom: 1px solid rgb(var(--outline-variant) / 0.5); margin-bottom: 28px; }
+        .auth-tab { flex: 1; padding: 10px 0; font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgb(var(--on-surface-variant) / 0.7); background: none; border: none; cursor: pointer; transition: color .25s ease; position: relative; text-align: center; }
+        .auth-tab::after { content: ''; position: absolute; bottom: -1px; left: 10%; width: 80%; height: 2px; background: rgb(var(--gold) / 1); border-radius: 2px; transform: scaleX(0); transition: transform .3s cubic-bezier(.4,0,.2,1); }
+        .auth-tab.active { color: rgb(var(--primary) / 1); }
+        .auth-tab.active::after { transform: scaleX(1); }
+        .dark .auth-tab.active { color: rgb(var(--primary-fixed) / 1); }
+        .auth-tab:hover:not(.active) { color: rgb(var(--on-surface) / 0.85); }
+        .auth-forms { position: relative; min-height: 260px; }
+        .auth-form-panel { animation: authFadeIn .3s ease; }
+        @keyframes authFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .field { position: relative; }
-        .field-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 20px; color: rgb(var(--gold) / 0.85); pointer-events: none; line-height: 1; }
-        .field-input { width: 100%; background: rgb(var(--surface-bright) / 1); border: 1px solid rgb(var(--outline-variant) / 1); border-radius: 0.5rem; padding: 12px 44px 12px 44px; color: rgb(var(--on-surface) / 1); font-family: 'Manrope', sans-serif; font-size: 15px; line-height: 1.4; transition: border-color .18s ease, box-shadow .18s ease, background .18s ease; }
-        .field-input::placeholder { color: rgb(var(--on-surface-variant) / 0.55); }
-        .field-input:focus { outline: none; border-color: rgb(var(--gold) / 1); box-shadow: 0 0 0 3px rgb(var(--gold) / 0.18); }
-        .field-input.has-error { border-color: rgb(var(--error) / 1); box-shadow: 0 0 0 3px rgb(var(--error) / 0.15); }
-        .field-eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border: none; border-radius: 0.375rem; background: transparent; color: rgb(var(--on-surface-variant) / 0.8); cursor: pointer; transition: color .15s ease, background .15s ease; }
-        .field-eye:hover { color: rgb(var(--gold-dark) / 1); background: rgb(var(--gold) / 0.1); }
-        .field-eye .material-symbols-outlined { font-size: 20px; }
-        .pw-meter { display: flex; gap: 4px; margin-top: 8px; }
-        .pw-meter span { height: 4px; flex: 1; border-radius: 9999px; background: rgb(var(--outline-variant) / 0.7); transition: background .2s ease; }
+        .field-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 18px; color: rgb(var(--gold) / 0.75); pointer-events: none; line-height: 1; transition: color .2s ease; }
+        .field:focus-within .field-icon { color: rgb(var(--gold) / 1); }
+        .field-input { width: 100%; background: rgb(var(--surface-container-low) / 1); border: 1px solid rgb(var(--outline-variant) / 0.6); border-radius: 10px; padding: 11px 42px 11px 40px; color: rgb(var(--on-surface) / 1); font-family: 'Manrope', sans-serif; font-size: 14px; line-height: 1.4; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
+        .field-input::placeholder { color: rgb(var(--on-surface-variant) / 0.45); font-size: 13px; }
+        .field-input:focus { outline: none; background: rgb(var(--surface-bright) / 1); border-color: rgb(var(--gold) / 1); box-shadow: 0 0 0 3px rgb(var(--gold) / 0.12); }
+        .field-input.has-error { border-color: rgb(var(--error) / 1); box-shadow: 0 0 0 3px rgb(var(--error) / 0.1); }
+        .dark .field-input { background: rgb(--surface-container, 238 238 235) / 0.15); }
+        .dark .field-input:focus { background: rgb(var(--surface-container-high) / 0.2); }
+        .field-eye { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border: none; border-radius: 8px; background: transparent; color: rgb(var(--on-surface-variant) / 0.6); cursor: pointer; transition: color .15s ease, background .15s ease; }
+        .field-eye:hover { color: rgb(var(--gold-dark) / 1); background: rgb(var(--gold) / 0.08); }
+        .field-eye .material-symbols-outlined { font-size: 19px; }
+        .pw-meter { display: flex; gap: 3px; margin-top: 8px; }
+        .pw-meter span { height: 3px; flex: 1; border-radius: 9999px; background: rgb(var(--outline-variant) / 0.5); transition: background .25s ease; }
         .pw-meter[data-score="1"] span:nth-child(-n+1) { background: rgb(var(--error) / 0.85); }
         .pw-meter[data-score="2"] span:nth-child(-n+2) { background: #d98b3a; }
         .pw-meter[data-score="3"] span:nth-child(-n+3) { background: #b7a63a; }
         .pw-meter[data-score="4"] span:nth-child(-n+4) { background: rgb(var(--gold) / 0.95); }
-        .pw-label { display: none; margin-top: 6px; font-family: 'Manrope', sans-serif; font-size: 12px; line-height: 1.4; color: rgb(var(--on-surface-variant) / 0.8); }
+        .pw-label { display: none; margin-top: 6px; font-family: 'Manrope', sans-serif; font-size: 11px; line-height: 1.4; color: rgb(var(--on-surface-variant) / 0.7); }
         .pw-meter[data-score="1"] ~ .pw-label { display: block; color: rgb(var(--error) / 0.9); }
         .pw-meter[data-score="2"] ~ .pw-label { display: block; color: #d98b3a; }
         .pw-meter[data-score="3"] ~ .pw-label { display: block; color: #b7a63a; }
+        .pw-label[data-score="4"] { display: block !important; color: rgb(var(--gold-dark) / 1); }
         .pw-meter[data-score="4"] ~ .pw-label { display: block; color: rgb(var(--gold-dark) / 1); }
-        .form-msg { text-align: center; font-family: 'Manrope', sans-serif; font-size: 14px; line-height: 1.5; padding: 10px 14px; border-radius: 0.5rem; }
-        .form-msg:not(.hidden) { display: block; }
-        .form-msg.is-error { color: rgb(var(--on-error-container) / 1); background: rgb(var(--error-container) / 0.55); border: 1px solid rgb(var(--error) / 0.3); }
-        .form-msg.is-ok { color: rgb(var(--gold-dark) / 1); background: rgb(var(--gold) / 0.12); border: 1px solid rgb(var(--gold) / 0.35); }
-        .btn-submit { position: relative; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: rgb(var(--primary) / 1); color: rgb(var(--on-primary) / 1); padding: 13px 24px; font-family: 'Manrope', sans-serif; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; border: none; border-radius: 0.5rem; cursor: pointer; transition: background .25s ease, transform .15s ease, opacity .2s ease; }
-        .btn-submit:hover:not(:disabled) { background: rgb(var(--primary) / 0.88); }
+        .form-msg { text-align: center; font-family: 'Manrope', sans-serif; font-size: 13px; line-height: 1.5; padding: 10px 14px; border-radius: 10px; }
+        .form-msg:not(.hidden) { display: block; animation: authFadeIn .3s ease; }
+        .form-msg.is-error { color: rgb(var(--on-error-container) / 1); background: rgb(var(--error-container) / 0.45); border: 1px solid rgb(var(--error) / 0.2); }
+        .form-msg.is-ok { color: rgb(var(--gold-dark) / 1); background: rgb(var(--gold) / 0.1); border: 1px solid rgb(var(--gold) / 0.25); }
+        .btn-submit { position: relative; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: rgb(var(--primary) / 1); color: rgb(var(--on-primary) / 1); padding: 12px 24px; font-family: 'Manrope', sans-serif; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; transition: background .25s ease, transform .15s ease, opacity .2s ease, box-shadow .25s ease; overflow: hidden; }
+        .btn-submit::after { content: ""; position: absolute; top: 0; left: -120%; width: 60%; height: 100%; background: linear-gradient(120deg, transparent, rgba(255,255,255,0.2), transparent); transform: skewX(-20deg); transition: left .6s ease; }
+        .btn-submit:hover:not(:disabled) { background: rgb(var(--primary) / 0.88); box-shadow: 0 4px 16px rgb(var(--primary) / 0.25); }
+        .btn-submit:hover:not(:disabled)::after { left: 160%; }
         .btn-submit:active:not(:disabled) { transform: translateY(1px); }
-        .btn-submit:disabled { opacity: 0.65; cursor: not-allowed; }
-        .btn-spinner { width: 15px; height: 15px; border-radius: 9999px; border: 2px solid rgb(var(--on-primary) / 0.35); border-top-color: rgb(var(--on-primary) / 1); animation: auth-spin .7s linear infinite; }
+        .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+        .btn-spinner { width: 15px; height: 15px; border-radius: 9999px; border: 2px solid rgb(var(--on-primary) / 0.3); border-top-color: rgb(var(--on-primary) / 1); animation: auth-spin .7s linear infinite; }
         .dark .btn-submit { background: rgb(var(--primary-fixed) / 1); color: rgb(var(--on-primary-fixed) / 1); }
-        .dark .btn-submit:hover:not(:disabled) { background: rgb(var(--primary-fixed) / 0.85); }
-        .dark .btn-spinner { border-color: rgb(var(--on-primary-fixed) / 0.35); border-top-color: rgb(var(--on-primary-fixed) / 1); }
+        .dark .btn-submit:hover:not(:disabled) { background: rgb(var(--primary-fixed) / 0.85); box-shadow: 0 4px 16px rgb(var(--primary-fixed) / 0.2); }
+        .dark .btn-spinner { border-color: rgb(var(--on-primary-fixed) / 0.3); border-top-color: rgb(var(--on-primary-fixed) / 1); }
         .dark .form-msg.is-ok { color: rgb(var(--gold-light) / 1); }
+        .auth-footer { text-align: center; margin-top: 16px; font-family: 'Manrope', sans-serif; font-size: 12px; color: rgb(var(--on-surface-variant) / 0.6); }
+        .auth-footer a { color: rgb(var(--gold-dark) / 1); text-decoration: none; font-weight: 600; transition: color .15s ease; }
+        .auth-footer a:hover { color: rgb(var(--gold) / 1); }
         @keyframes auth-spin { to { transform: rotate(360deg); } }
         #toast { transition: opacity .3s ease, transform .3s ease; }
         #mobileMenu.hidden { display: none; }
@@ -1534,78 +1553,64 @@ Prévisions 5 jours
      MODALE CONNEXION / INSCRIPTION
      ============================================================ -->
 <div id="authModal" class="fixed inset-0 z-[60] items-center justify-center bg-[#061b0e]/60 backdrop-blur-sm p-6">
-<div class="glass-panel w-full max-w-md p-8 rounded-xl relative">
-<button id="authClose" aria-label="Fermer" class="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">close</span>
+<div class="glass-panel w-full max-w-sm p-7 rounded-2xl relative shadow-2xl shadow-black/15">
+<button id="authClose" aria-label="Fermer" class="absolute top-3.5 right-3.5 w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant/60 hover:text-primary hover:bg-primary/8 transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0; font-size: 20px;">close</span>
 </button>
-<div class="flex gap-2 mb-6">
-<button id="tabLogin" class="flex-1 px-4 py-2 font-label-sm text-label-sm uppercase tracking-widest rounded-lg bg-primary text-on-primary transition-colors">Connexion</button>
-<button id="tabRegister" class="flex-1 px-4 py-2 font-label-sm text-label-sm uppercase tracking-widest rounded-lg bg-surface-container-high text-on-surface-variant transition-colors">Inscription</button>
+
+<div class="auth-tabs">
+<button id="tabLogin" class="auth-tab active" type="button">Connexion</button>
+<button id="tabRegister" class="auth-tab" type="button">Inscription</button>
 </div>
 
-<form id="loginForm" class="space-y-5" novalidate>
-<div>
-<label class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant block mb-2" for="loginEmail">Email ou pseudo</label>
+<div class="auth-forms">
+
+<form id="loginForm" class="auth-form-panel space-y-4" novalidate>
 <div class="field">
-<span class="material-symbols-outlined field-icon" style="font-variation-settings:'FILL' 0;" aria-hidden="true">person</span>
-<input id="loginEmail" name="email" type="text" autocomplete="username" inputmode="email" placeholder="vous@exemple.jp ou pseudo" class="field-input" required/>
+<span class="material-symbols-outlined field-icon" style="font-variation-settings:'FILL' 0;" aria-hidden="true">mail</span>
+<input id="loginEmail" name="email" type="text" autocomplete="username" inputmode="email" placeholder="Email ou pseudo" class="field-input" required/>
 </div>
-</div>
-<div>
-<label class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant block mb-2" for="loginPassword">Mot de passe</label>
 <div class="field">
 <span class="material-symbols-outlined field-icon" style="font-variation-settings:'FILL' 0;" aria-hidden="true">lock</span>
-<input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="••••••••" class="field-input" required/>
+<input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Mot de passe" class="field-input" required/>
 <button type="button" class="field-eye" data-eye="loginPassword" aria-label="Afficher le mot de passe"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 0;" aria-hidden="true">visibility</span></button>
-</div>
 </div>
 <button type="submit" id="loginSubmit" class="btn-submit"><span class="btn-label">Se connecter</span><span class="btn-spinner hidden" aria-hidden="true"></span></button>
 <p id="loginMsg" class="form-msg hidden" role="status"></p>
 </form>
 
-<form id="registerForm" class="space-y-5 hidden" novalidate>
-<div>
-<label class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant block mb-2" for="regUsername">Nom d'utilisateur</label>
+<form id="registerForm" class="auth-form-panel space-y-4 hidden" novalidate>
 <div class="field">
-<span class="material-symbols-outlined field-icon" style="font-variation-settings:'FILL' 0;" aria-hidden="true">badge</span>
-<input id="regUsername" name="username" type="text" autocomplete="username" minlength="3" maxlength="60" pattern="[a-zA-Z0-9_]{3,60}" placeholder="3 à 60 caractères (lettres, chiffres, _)" class="field-input" required/>
+<span class="material-symbols-outlined field-icon" style="font-variation-settings:'FILL' 0;" aria-hidden="true">person</span>
+<input id="regUsername" name="username" type="text" autocomplete="username" minlength="3" maxlength="60" pattern="[a-zA-Z0-9_]{3,60}" placeholder="Nom d'utilisateur" class="field-input" required/>
 </div>
-</div>
-<div>
-<label class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant block mb-2" for="regEmail">Email</label>
 <div class="field">
 <span class="material-symbols-outlined field-icon" style="font-variation-settings:'FILL' 0;" aria-hidden="true">mail</span>
-<input id="regEmail" name="email" type="email" autocomplete="email" inputmode="email" placeholder="vous@exemple.jp" class="field-input" required/>
+<input id="regEmail" name="email" type="email" autocomplete="email" inputmode="email" placeholder="Email" class="field-input" required/>
 </div>
-</div>
-<div>
-<label class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant block mb-2" for="regFullName">Nom complet <span class="normal-case tracking-normal text-on-surface-variant/70">(optionnel)</span></label>
 <div class="field">
-<span class="material-symbols-outlined field-icon" style="font-variation-settings:'FILL' 0;" aria-hidden="true">person_outline</span>
-<input id="regFullName" name="full_name" type="text" maxlength="120" autocomplete="name" placeholder="Prénom Nom" class="field-input"/>
-</div>
+<span class="material-symbols-outlined field-icon" style="font-variation-settings:'FILL' 0;" aria-hidden="true">badge</span>
+<input id="regFullName" name="full_name" type="text" maxlength="120" autocomplete="name" placeholder="Nom complet (optionnel)" class="field-input"/>
 </div>
 <div>
-<label class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant block mb-2" for="regPassword">Mot de passe</label>
 <div class="field">
 <span class="material-symbols-outlined field-icon" style="font-variation-settings:'FILL' 0;" aria-hidden="true">lock</span>
-<input id="regPassword" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="6 caractères minimum" class="field-input" required/>
+<input id="regPassword" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="Mot de passe (6+ caractères)" class="field-input" required/>
 <button type="button" class="field-eye" data-eye="regPassword" aria-label="Afficher le mot de passe"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 0;" aria-hidden="true">visibility</span></button>
 </div>
 <div class="pw-meter" id="pwMeter" data-score="0" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
 <p class="pw-label" id="pwLabel">Faible</p>
 </div>
-<div>
-<label class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant block mb-2" for="regPassword2">Confirmer le mot de passe</label>
 <div class="field">
 <span class="material-symbols-outlined field-icon" style="font-variation-settings:'FILL' 0;" aria-hidden="true">lock</span>
-<input id="regPassword2" name="password2" type="password" autocomplete="new-password" placeholder="Répétez le mot de passe" class="field-input" required/>
+<input id="regPassword2" name="password2" type="password" autocomplete="new-password" placeholder="Confirmer le mot de passe" class="field-input" required/>
 <button type="button" class="field-eye" data-eye="regPassword2" aria-label="Afficher le mot de passe"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 0;" aria-hidden="true">visibility</span></button>
-</div>
 </div>
 <button type="submit" id="registerSubmit" class="btn-submit"><span class="btn-label">Créer mon compte</span><span class="btn-spinner hidden" aria-hidden="true"></span></button>
 <p id="registerMsg" class="form-msg hidden" role="status"></p>
 </form>
+
+</div>
 </div>
 </div>
 
