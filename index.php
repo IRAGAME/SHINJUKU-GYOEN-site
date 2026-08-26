@@ -369,9 +369,9 @@
         .auth-form-panel { animation: authFadeIn .3s ease; }
         @keyframes authFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .field { position: relative; }
-        .field-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 18px; color: rgb(var(--gold) / 0.75); pointer-events: none; line-height: 1; transition: color .2s ease; }
+        .field-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: rgb(var(--gold) / 0.75); pointer-events: none; line-height: 1; transition: color .2s ease; }
         .field:focus-within .field-icon { color: rgb(var(--gold) / 1); }
-        .field-input { width: 100%; background: rgb(var(--surface-container-low) / 1); border: 1px solid rgb(var(--outline-variant) / 0.6); border-radius: 10px; padding: 11px 42px 11px 40px; color: rgb(var(--on-surface) / 1); font-family: 'Manrope', sans-serif; font-size: 14px; line-height: 1.4; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
+        .field-input { width: 100%; background: rgb(var(--surface-container-low) / 1); border: 1px solid rgb(var(--outline-variant) / 0.6); border-radius: 10px; padding: 12px 42px 12px 46px; color: rgb(var(--on-surface) / 1); font-family: 'Manrope', sans-serif; font-size: 14px; line-height: 1.4; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
         .field-input::placeholder { color: rgb(var(--on-surface-variant) / 0.45); font-size: 13px; }
         .field-input:focus { outline: none; background: rgb(var(--surface-bright) / 1); border-color: rgb(var(--gold) / 1); box-shadow: 0 0 0 3px rgb(var(--gold) / 0.12); }
         .field-input.has-error { border-color: rgb(var(--error) / 1); box-shadow: 0 0 0 3px rgb(var(--error) / 0.1); }
