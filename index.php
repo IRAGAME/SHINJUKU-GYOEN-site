@@ -375,7 +375,7 @@
         .field-input::placeholder { color: rgb(var(--on-surface-variant) / 0.45); font-size: 13px; }
         .field-input:focus { outline: none; background: rgb(var(--surface-bright) / 1); border-color: rgb(var(--gold) / 1); box-shadow: 0 0 0 3px rgb(var(--gold) / 0.12); }
         .field-input.has-error { border-color: rgb(var(--error) / 1); box-shadow: 0 0 0 3px rgb(var(--error) / 0.1); }
-        .dark .field-input { background: rgb(--surface-container, 238 238 235) / 0.15); }
+        .dark .field-input { background: rgb(var(--surface-container) / 0.15); }
         .dark .field-input:focus { background: rgb(var(--surface-container-high) / 0.2); }
         .field-eye { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border: none; border-radius: 8px; background: transparent; color: rgb(var(--on-surface-variant) / 0.6); cursor: pointer; transition: color .15s ease, background .15s ease; }
         .field-eye:hover { color: rgb(var(--gold-dark) / 1); background: rgb(var(--gold) / 0.08); }
@@ -390,7 +390,6 @@
         .pw-meter[data-score="1"] ~ .pw-label { display: block; color: rgb(var(--error) / 0.9); }
         .pw-meter[data-score="2"] ~ .pw-label { display: block; color: #d98b3a; }
         .pw-meter[data-score="3"] ~ .pw-label { display: block; color: #b7a63a; }
-        .pw-label[data-score="4"] { display: block !important; color: rgb(var(--gold-dark) / 1); }
         .pw-meter[data-score="4"] ~ .pw-label { display: block; color: rgb(var(--gold-dark) / 1); }
         .form-msg { text-align: center; font-family: 'Manrope', sans-serif; font-size: 13px; line-height: 1.5; padding: 10px 14px; border-radius: 10px; }
         .form-msg:not(.hidden) { display: block; animation: authFadeIn .3s ease; }
