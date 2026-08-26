@@ -43,8 +43,8 @@ function getPDO(): PDO
         $host   = $parts['host']     ?? '127.0.0.1';
         $port   = $parts['port']     ?? '5432';
         $dbName = ltrim($parts['path'] ?? '', '/');
-        $user   = $parts['user']     ?? '';
-        $pass   = $parts['password'] ?? '';
+        $user   = urldecode($parts['user']     ?? '');
+        $pass   = urldecode($parts['password'] ?? '');
         $dsn = "pgsql:host={$host};port={$port};dbname={$dbName}";
     }
 
