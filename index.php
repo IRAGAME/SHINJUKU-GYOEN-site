@@ -327,6 +327,10 @@
         .dark .chat-init button { background: rgb(var(--primary-fixed-dim) / 1); color: rgb(var(--on-primary-fixed) / 1); }
         .dark .chat-init button:hover { background: rgb(var(--primary-fixed) / 1); }
         .chat-init .error { color: rgb(var(--error) / 1); font-family: 'Manrope', sans-serif; font-size: 12px; display: none; background: rgb(var(--error-container) / 0.4); padding: 8px 12px; border-radius: 8px; border: 1px solid rgb(var(--error) / 0.2); }
+        .chat-init textarea { border: 1px solid rgb(var(--outline-variant) / 0.5); border-radius: 12px; padding: 11px 14px; font-family: 'Manrope', sans-serif; font-size: 14px; background: rgb(var(--surface-bright) / 1); color: rgb(var(--on-surface) / 1); outline: none; transition: border-color .2s ease, box-shadow .2s ease; resize: none; }
+        .chat-init textarea::placeholder { color: rgb(var(--on-surface-variant) / 0.45); }
+        .chat-init textarea:focus { border-color: rgb(var(--gold) / 0.7); box-shadow: 0 0 0 3px rgb(var(--gold) / 0.1); }
+        .dark .chat-init textarea { background: rgb(var(--surface-container-high) / 0.5); border-color: rgb(var(--outline-variant) / 0.3); }
         /* ---- Widget Météo ---- */
         .weather-spinner { width: 40px; height: 40px; border: 3px solid rgb(var(--outline-variant) / 0.5); border-top-color: rgb(var(--gold) / 1); border-radius: 9999px; animation: auth-spin .7s linear infinite; }
         .weather-icon-wrap { width: 80px; height: 80px; flex-shrink: 0; }
@@ -1633,15 +1637,14 @@ Prévisions 5 jours
 <!-- Écran d'init : formulaire pour commencer -->
 <div class="chat-init" id="chatInit">
 <div class="chat-init-icon">
-<span class="material-symbols-outlined" style="font-variation-settings:'FILL' 0;">mail</span>
+<span class="material-symbols-outlined" style="font-variation-settings:'FILL' 0;">chat</span>
 </div>
 <h3>Besoin d'aide ?</h3>
-<p>Écrivez-nous, nous répondons rapidement. Votre conversation sera transmise par WhatsApp.</p>
+<p>Écrivez-nous, nous répondons rapidement via WhatsApp.</p>
 <input type="text" id="chatName" placeholder="Votre nom" maxlength="120"/>
-<input type="tel" id="chatPhone" placeholder="Numéro WhatsApp (optionnel)" maxlength="20"/>
-<input type="email" id="chatEmail" placeholder="Votre email (optionnel)" maxlength="190"/>
+<textarea id="chatFirstMsg" rows="3" maxlength="4000" placeholder="Décrivez votre question ou demande..."></textarea>
 <p class="error" id="chatInitError"></p>
-<button id="chatStart">Commencer la conversation</button>
+<button id="chatStart">Envoyer</button>
 </div>
 
 <!-- Zone des messages (cachée au début) -->
@@ -1712,8 +1715,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var chatSend   = document.getElementById('chatSend');
     var chatStart  = document.getElementById('chatStart');
     var chatName   = document.getElementById('chatName');
-    var chatPhone  = document.getElementById('chatPhone');
-    var chatEmail  = document.getElementById('chatEmail');
+    var chatFirstMsg = document.getElementById('chatFirstMsg');
     var chatInitError = document.getElementById('chatInitError');
 
     var conversationId = null;
@@ -1731,14 +1733,22 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     chatStart.addEventListener('click', startConversation);
-    chatName.addEventListener('keydown', function (e) { if (e.key === 'Enter') startConversation(); });
+    chatName.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); startConversation(); } });
+    chatFirstMsg.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); startConversation(); } });
 
     function startConversation() {
         var name = chatName.value.trim();
+        var firstMsg = chatFirstMsg.value.trim();
         if (!name) {
             chatInitError.textContent = 'Veuillez entrer votre nom.';
             chatInitError.style.display = 'block';
             chatName.focus();
+            return;
+        }
+        if (!firstMsg) {
+            chatInitError.textContent = 'Veuillez écrire votre message.';
+            chatInitError.style.display = 'block';
+            chatFirstMsg.focus();
             return;
         }
         chatInitError.style.display = 'none';
@@ -1747,9 +1757,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         var payload = {
             visitor_name: name,
-            visitor_phone: chatPhone.value.trim() || null,
-            visitor_email: chatEmail.value.trim() || null,
-            body: 'Bonjour, je souhaite des informations sur le jardin.'
+            body: firstMsg
         };
 
         fetch(API + 'messages', {
@@ -1767,7 +1775,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
             conversationId = res.data.conversation_id;
-            addMessage('visitor', payload.body, new Date().toISOString());
+            addMessage('visitor', firstMsg, new Date().toISOString());
             lastMessageCount = 1;
             showChat();
             startPolling();
