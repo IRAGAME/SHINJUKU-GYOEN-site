@@ -1837,7 +1837,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function startPolling() {
         if (pollTimer) clearInterval(pollTimer);
-        pollTimer = setInterval(pollMessages, 4000);
+        if (conversationId) pollTimer = setInterval(pollMessages, 4000);
     }
 
     function pollMessages() {
@@ -1875,19 +1875,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function sendMessage() {
         var text = chatInput.value.trim();
-        if (!text || !conversationId) return;
+        if (!text) return;
 
         chatSend.disabled = true;
         chatInput.value = '';
 
+        var payload = { visitor_name: chatName.value.trim(), body: text };
+        if (conversationId) payload.conversation_id = conversationId;
+
         fetch(API + 'messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ conversation_id: conversationId, visitor_name: chatName.value.trim(), body: text })
+            body: JSON.stringify(payload)
         })
         .then(function (r) { return r.json(); })
         .then(function (res) {
             if (res.success) {
+                if (res.data.conversation_id) conversationId = res.data.conversation_id;
                 addMessage('visitor', text, new Date().toISOString());
                 lastMessageCount++;
             } else {
