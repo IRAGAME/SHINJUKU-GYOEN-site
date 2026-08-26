@@ -358,26 +358,28 @@
         .star-btn:hover { transform: scale(1.25); }
         #authModal { display: none; }
         #authModal.open { display: flex; }
-        .auth-tabs { display: flex; position: relative; border-bottom: 1px solid rgb(var(--outline-variant) / 0.5); margin-bottom: 28px; }
+        .auth-modal-card { width: 100%; max-width: 24rem; max-height: 90vh; overflow-y: auto; }
+        @media (max-width: 380px) { .auth-modal-card { max-width: calc(100vw - 32px); padding: 20px !important; } }
+        .auth-tabs { display: flex; position: relative; border-bottom: 1px solid rgb(var(--outline-variant) / 0.5); margin-bottom: 24px; }
         .auth-tab { flex: 1; padding: 10px 0; font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgb(var(--on-surface-variant) / 0.7); background: none; border: none; cursor: pointer; transition: color .25s ease; position: relative; text-align: center; }
         .auth-tab::after { content: ''; position: absolute; bottom: -1px; left: 10%; width: 80%; height: 2px; background: rgb(var(--gold) / 1); border-radius: 2px; transform: scaleX(0); transition: transform .3s cubic-bezier(.4,0,.2,1); }
         .auth-tab.active { color: rgb(var(--primary) / 1); }
         .auth-tab.active::after { transform: scaleX(1); }
         .dark .auth-tab.active { color: rgb(var(--primary-fixed) / 1); }
         .auth-tab:hover:not(.active) { color: rgb(var(--on-surface) / 0.85); }
-        .auth-forms { position: relative; min-height: 260px; }
+        .auth-forms { position: relative; }
         .auth-form-panel { animation: authFadeIn .3s ease; }
         @keyframes authFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .field { position: relative; }
-        .field-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: rgb(var(--gold) / 0.75); pointer-events: none; line-height: 1; transition: color .2s ease; }
+        .field-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 20px; color: rgb(var(--gold) / 0.75); pointer-events: none; line-height: 1; transition: color .2s ease; z-index: 1; }
         .field:focus-within .field-icon { color: rgb(var(--gold) / 1); }
-        .field-input { width: 100%; background: rgb(var(--surface-container-low) / 1); border: 1px solid rgb(var(--outline-variant) / 0.6); border-radius: 10px; padding: 12px 42px 12px 46px; color: rgb(var(--on-surface) / 1); font-family: 'Manrope', sans-serif; font-size: 14px; line-height: 1.4; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
+        .field-input { width: 100%; background: rgb(var(--surface-container-low) / 1); border: 1px solid rgb(var(--outline-variant) / 0.6); border-radius: 10px; padding: 12px 44px 12px 48px; color: rgb(var(--on-surface) / 1); font-family: 'Manrope', sans-serif; font-size: 14px; line-height: 1.4; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
         .field-input::placeholder { color: rgb(var(--on-surface-variant) / 0.45); font-size: 13px; }
         .field-input:focus { outline: none; background: rgb(var(--surface-bright) / 1); border-color: rgb(var(--gold) / 1); box-shadow: 0 0 0 3px rgb(var(--gold) / 0.12); }
         .field-input.has-error { border-color: rgb(var(--error) / 1); box-shadow: 0 0 0 3px rgb(var(--error) / 0.1); }
         .dark .field-input { background: rgb(var(--surface-container) / 0.15); }
         .dark .field-input:focus { background: rgb(var(--surface-container-high) / 0.2); }
-        .field-eye { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border: none; border-radius: 8px; background: transparent; color: rgb(var(--on-surface-variant) / 0.6); cursor: pointer; transition: color .15s ease, background .15s ease; }
+        .field-eye { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border: none; border-radius: 8px; background: transparent; color: rgb(var(--on-surface-variant) / 0.6); cursor: pointer; transition: color .15s ease, background .15s ease; z-index: 1; }
         .field-eye:hover { color: rgb(var(--gold-dark) / 1); background: rgb(var(--gold) / 0.08); }
         .field-eye .material-symbols-outlined { font-size: 19px; }
         .pw-meter { display: flex; gap: 3px; margin-top: 8px; }
@@ -687,10 +689,19 @@
 </nav>
 <div class="flex items-center gap-3 md:gap-4">
 <div id="authArea" class="flex items-center gap-3">
-<button id="btnLogin" class="font-label-sm text-label-sm text-primary uppercase tracking-widest hover:text-gold-dark transition-colors whitespace-nowrap">Connexion</button>
-<span id="userMenu" class="hidden items-center gap-2 font-body-md text-body-md text-primary">
-<span id="userName" class="max-w-[120px] truncate"></span>
-<button id="btnLogout" class="font-label-sm text-label-sm uppercase tracking-widest text-gold-dark hover:text-error transition-colors" title="Se déconnecter">Déconnexion</button>
+<button id="btnLogin" class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 font-label-sm text-label-sm text-primary uppercase tracking-widest hover:bg-primary/8 hover:border-primary/50 transition-all duration-200 whitespace-nowrap">
+<span class="material-symbols-outlined" style="font-variation-settings:'FILL' 0; font-size: 18px;">person</span>
+Connexion
+</button>
+<span id="userMenu" class="hidden items-center gap-3">
+<span id="userAvatar" class="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-sm text-label-sm uppercase tracking-wider shrink-0 shadow-sm" aria-hidden="true"></span>
+<span class="hidden sm:flex flex-col leading-none">
+<span id="userName" class="font-label-sm text-label-sm text-primary max-w-[140px] truncate"></span>
+<button id="btnLogout" class="text-[10px] text-on-surface-variant/60 hover:text-error transition-colors uppercase tracking-widest text-left">Déconnexion</button>
+</span>
+<button id="btnLogoutMobile" class="sm:hidden w-9 h-9 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:text-error hover:border-error/40 transition-colors" title="Se déconnecter">
+<span class="material-symbols-outlined" style="font-variation-settings:'FILL' 0; font-size: 18px;">logout</span>
+</button>
 </span>
 </div>
 <button id="btnBookNow" class="hidden sm:inline-flex btn-gold bg-primary text-on-primary px-5 md:px-6 py-2.5 md:py-3 font-label-sm text-label-sm uppercase tracking-widest hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all duration-300 whitespace-nowrap">
@@ -1552,7 +1563,7 @@ Prévisions 5 jours
      MODALE CONNEXION / INSCRIPTION
      ============================================================ -->
 <div id="authModal" class="fixed inset-0 z-[60] items-center justify-center bg-[#061b0e]/60 backdrop-blur-sm p-6">
-<div class="glass-panel w-full max-w-sm p-7 rounded-2xl relative shadow-2xl shadow-black/15">
+<div class="glass-panel auth-modal-card p-7 rounded-2xl relative shadow-2xl shadow-black/15">
 <button id="authClose" aria-label="Fermer" class="absolute top-3.5 right-3.5 w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant/60 hover:text-primary hover:bg-primary/8 transition-colors">
 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0; font-size: 20px;">close</span>
 </button>

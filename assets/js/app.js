@@ -116,6 +116,8 @@ function renderAuth() {
     const area = $('#authArea');
     const loginBtn = $('#btnLogin');
     const userMenu = $('#userMenu');
+    const avatar = $('#userAvatar');
+    const logoutMobile = $('#btnLogoutMobile');
 
     area.classList.remove('hidden');
     area.classList.add('flex');
@@ -124,7 +126,12 @@ function renderAuth() {
         loginBtn.classList.add('hidden');
         userMenu.classList.remove('hidden');
         userMenu.classList.add('flex');
-        $('#userName').textContent = state.user.full_name || state.user.username;
+        const displayName = state.user.full_name || state.user.username;
+        $('#userName').textContent = displayName;
+        if (avatar) {
+            const initials = displayName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+            avatar.textContent = initials;
+        }
     } else {
         loginBtn.classList.remove('hidden');
         userMenu.classList.add('hidden');
@@ -1230,6 +1237,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#btnLogin').addEventListener('click', () => openAuthModal('login'));
     $('#btnLogout').addEventListener('click', handleLogout);
+    if ($('#btnLogoutMobile')) $('#btnLogoutMobile').addEventListener('click', handleLogout);
     $('#btnStory').addEventListener('click', () => {
         document.getElementById('histoire').scrollIntoView({ behavior: 'smooth' });
     });
