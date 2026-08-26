@@ -9,7 +9,7 @@
 
 'use strict';
 
-const API = '/EXAMEN/api/index.php';
+const API = '/api/index.php';
 
 /* ---------------- État global ---------------- */
 const state = {

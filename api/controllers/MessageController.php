@@ -59,8 +59,8 @@ final class MessageController
 
         // Insérer le message visiteur
         $stmt = $pdo->prepare(
-            'INSERT INTO messages (conversation_id, sender, body)
-             VALUES (?, "visitor", ?)'
+            "INSERT INTO messages (conversation_id, sender, body)
+             VALUES (?, 'visitor', ?)"
         );
         $stmt->execute([$convId, $body]);
 
@@ -276,8 +276,8 @@ final class MessageController
 
         // Insérer le message admin
         $stmt = $pdo->prepare(
-            'INSERT INTO messages (conversation_id, sender, body)
-             VALUES (?, "admin", ?)'
+            "INSERT INTO messages (conversation_id, sender, body)
+             VALUES (?, 'admin', ?)"
         );
         $stmt->execute([$convId, $body]);
         $msgId = (int)$pdo->lastInsertId();
@@ -309,7 +309,7 @@ final class MessageController
         require_admin();
         $pdo = getPDO();
 
-        $stmt = $pdo->prepare('UPDATE conversations SET status = "closed" WHERE id = ?');
+        $stmt = $pdo->prepare("UPDATE conversations SET status = 'closed' WHERE id = ?");
         $stmt->execute([(int)$id]);
 
         json_success(['id' => (int)$id, 'status' => 'closed']);
@@ -438,7 +438,7 @@ final class MessageController
 
         // Chercher la dernière conversation ouverte
         $stmt = $pdo->prepare(
-            'SELECT id FROM conversations WHERE status = "open" ORDER BY updated_at DESC LIMIT 1'
+            "SELECT id FROM conversations WHERE status = 'open' ORDER BY updated_at DESC LIMIT 1"
         );
         $stmt->execute();
         $conv = $stmt->fetch();
@@ -458,8 +458,8 @@ final class MessageController
 
         // Insérer le message admin
         $stmt = $pdo->prepare(
-            'INSERT INTO messages (conversation_id, sender, body, whatsapp_message_id)
-             VALUES (?, "admin", ?, ?)'
+            "INSERT INTO messages (conversation_id, sender, body, whatsapp_message_id)
+             VALUES (?, 'admin', ?, ?)"
         );
         $stmt->execute([$convId, $body, $waMsgId]);
 

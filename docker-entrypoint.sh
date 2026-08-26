@@ -6,4 +6,7 @@ if [ ! -f /var/www/html/index.php ]; then
     exit 1
 fi
 
+echo "Installing database schema..."
+php /var/www/html/database/install.php || echo "Schema install skipped or already done."
+
 exec "$@"

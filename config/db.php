@@ -2,26 +2,14 @@
 
 /**
  * ============================================================
- *  Configuration de la base de données (PDO / MySQL)
+ *  Configuration de la base de données (PDO)
  *  Projet : Shinjuku Gyoen
  * ============================================================
- *  Ce fichier est le SEUL endroit où les accès BDD sont définis.
- *  Il retourne une connexion PDO unique (singleton) via getPDO().
+ *  Sur Render : utilise DATABASE_URL (PostgreSQL automatique)
+ *  En local   : utilise les constantes ci-dessous (MySQL)
  * ============================================================
  */
 
-const DB_HOST    = '127.0.0.1';
-const DB_NAME    = 'shinjuku_gyoen';
-const DB_USER    = 'gyoen_app';
-const DB_PASS    = 'Shinju_2026_Gyoen';
-const DB_CHARSET = 'utf8mb4';
-
-/**
- * Retourne l'instance PDO (unique) de l'application.
- *
- * @return PDO
- * @throws RuntimeException si la connexion échoue
- */
 function getPDO(): PDO
 {
     static $pdo = null;
@@ -30,10 +18,30 @@ function getPDO(): PDO
         return $pdo;
     }
 
-    $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=' . DB_CHARSET;
+    $databaseUrl = getenv('DATABASE_URL');
+
+    if ($databaseUrl !== false && $databaseUrl !== '') {
+        $parts = parse_url($databaseUrl);
+        $scheme = $parts['scheme'] ?? 'pgsql';
+        $host   = $parts['host']     ?? '127.0.0.1';
+        $port   = $parts['port']     ?? '5432';
+        $dbName = ltrim($parts['path'] ?? '', '/');
+        $user   = $parts['user']     ?? '';
+        $pass   = $parts['password'] ?? '';
+
+        $dsn = "pgsql:host={$host};port={$port};dbname={$dbName}";
+    } else {
+        $host    = '127.0.0.1';
+        $dbName  = 'shinjuku_gyoen';
+        $user    = 'gyoen_app';
+        $pass    = 'Shinju_2026_Gyoen';
+        $charset = 'utf8mb4';
+
+        $dsn = "mysql:host={$host};dbname={$dbName};charset={$charset}";
+    }
 
     try {
-        $pdo = new PDO($dsn, DB_USER, DB_PASS, [
+        $pdo = new PDO($dsn, $user, $pass, [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,

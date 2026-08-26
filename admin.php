@@ -90,7 +90,7 @@
 
 <script>
 (function () {
-    var API = '../api/index.php?route=';
+    var API = '/api/index.php?route=';
     var convList = document.getElementById('convList');
     var convName = document.getElementById('convName');
     var convMeta = document.getElementById('convMeta');
