@@ -50,7 +50,7 @@ function getPDO(): PDO
         }
     } else {
         // Par défaut : Supabase pooler IPv4
-        $dsn  = "pgsql:host={$poolerHost};port={$poolerPort};dbname={$poolerDb}";
+        $dsn  = "pgsql:host={$poolerHost};port={$poolerPort};dbname={$poolerDb};sslmode=require";
         $user = $poolerUser;
         $pass = $poolerPass;
     }
