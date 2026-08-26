@@ -409,17 +409,26 @@ final class MessageController
     /* -------------------------------------------------------------- */
 
     /**
-     * Envoie une notification WhatsApp à l'admin quand un visiteur écrit.
+     * Envoie une notification à l'admin (email +/ou WhatsApp) quand un visiteur écrit.
      */
     private static function notifyAdminViaWhatsApp(int $convId, string $visitorName, string $body): array
     {
-        if (!whatsapp_is_configured()) {
-            return ['ok' => false, 'error' => 'WhatsApp non configuré'];
+        $mode = NOTIFICATION_MODE;
+        $results = [];
+
+        // Notification email
+        if ($mode === 'email' || $mode === 'both') {
+            $emailSent = notify_admin_email($visitorName, $body, $convId);
+            $results['email_sent'] = $emailSent;
         }
 
-        $text = "Nouveau message de *{$visitorName}* (conversation #{$convId}) :\n\n{$body}\n\n---\nRépondez directement ici, votre réponse apparaîtra sur le site.";
+        // Notification WhatsApp
+        if (($mode === 'whatsapp' || $mode === 'both') && whatsapp_is_configured()) {
+            $text = "Nouveau message de *{$visitorName}* (conv #{$convId}) :\n\n{$body}\n\n---\nRépondez ici, votre réponse apparaîtra sur le site.";
+            $results['whatsapp'] = whatsapp_send_message(WHATSAPP_ADMIN_PHONE, $text);
+        }
 
-        return whatsapp_send_message(WHATSAPP_ADMIN_PHONE, $text);
+        return $results;
     }
 
     /**
