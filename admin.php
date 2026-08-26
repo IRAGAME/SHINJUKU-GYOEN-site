@@ -4,9 +4,9 @@
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Admin - Messagerie | Shinjuku Gyoen</title>
-    <link href="../assets/fonts/fonts-body-local.css" rel="stylesheet"/>
-    <link href="../assets/fonts/fonts-symbols-local.css" rel="stylesheet"/>
-    <script src="../assets/js/tailwind.js"></script>
+<link href="assets/fonts/fonts-body-local.css" rel="stylesheet"/>
+<link href="assets/fonts/fonts-symbols-local.css" rel="stylesheet"/>
+<script src="assets/js/tailwind.js"></script>
     <script>window.tailwind = window.tailwind || {};</script>
     <script>
         tailwind.config = {

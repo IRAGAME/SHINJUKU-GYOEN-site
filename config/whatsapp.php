@@ -31,6 +31,10 @@ define('SITE_NAME', 'Shinjuku Gyoen');
 // Email admin (backup notifications)
 define('ADMIN_EMAIL', 'iragame1@gmail.com');
 
+// ─── Webhook Vonage (à configurer dans le dashboard Vonage) ─
+// Inbound URL : https://shinjuku-gyoen-site.onrender.com/api/index.php?route=messages/webhook
+// Status URL  : https://shinjuku-gyoen-site.onrender.com/api/index.php?route=messages/webhook
+
 /**
  * Vérifie si Vonage est configuré.
  */
@@ -58,13 +62,11 @@ function whatsapp_send_message(string $to, string $text): array
     $url = 'https://messages-api-us-1.vonage.com/v1/messages';
 
     $payload = json_encode([
-        'from' => ['type' => 'whatsapp', 'number' => VONAGE_WHATSAPP_FROM],
-        'to'   => ['type' => 'whatsapp', 'number' => $to],
-        'channel' => 'whatsapp',
-        'content' => [
-            'type' => 'text',
-            'text' => $text,
-        ],
+        'from'         => VONAGE_WHATSAPP_FROM,
+        'to'           => $to,
+        'channel'      => 'whatsapp',
+        'message_type' => 'text',
+        'text'         => $text,
     ]);
 
     $ch = curl_init($url);
@@ -95,6 +97,11 @@ function whatsapp_send_message(string $to, string $text): array
     }
 
     $errorMsg = $data['error_title'] ?? $data['error'] ?? $response;
+
+    // Logger l'erreur pour diagnostic
+    $log = date('Y-m-d H:i:s') . " | HTTP {$httpCode} | To: {$to} | Error: {$errorMsg}\n";
+    @file_put_contents(__DIR__ . '/../whatsapp.log', $log, FILE_APPEND);
+
     return ['ok' => false, 'error' => 'Vonage (HTTP ' . $httpCode . '): ' . $errorMsg];
 }
 

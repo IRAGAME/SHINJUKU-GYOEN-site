@@ -1445,6 +1445,7 @@ Tokyo · Japan</span>
 <h3>Besoin d'aide ?</h3>
 <p>Écrivez-nous, nous répondons rapidement.</p>
 <input type="text" id="chatName" placeholder="Votre nom" maxlength="120"/>
+<input type="tel" id="chatPhone" placeholder="Numéro WhatsApp (optionnel)" maxlength="20"/>
 <input type="email" id="chatEmail" placeholder="Votre email (optionnel)" maxlength="190"/>
 <p class="error" id="chatInitError"></p>
 <button id="chatStart">Commencer la conversation</button>
@@ -1518,13 +1519,19 @@ document.addEventListener('DOMContentLoaded', function () {
     var chatSend   = document.getElementById('chatSend');
     var chatStart  = document.getElementById('chatStart');
     var chatName   = document.getElementById('chatName');
+    var chatPhone  = document.getElementById('chatPhone');
     var chatEmail  = document.getElementById('chatEmail');
     var chatInitError = document.getElementById('chatInitError');
 
     var conversationId = null;
+    var lastMessageCount = 0;
+    var pollTimer = null;
 
     chatFab.addEventListener('click', function () {
         chatWidget.classList.toggle('open');
+        if (chatWidget.classList.contains('open')) {
+            document.getElementById('chatBadge').style.display = 'none';
+        }
     });
     chatClose.addEventListener('click', function () {
         chatWidget.classList.remove('open');
@@ -1547,6 +1554,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         var payload = {
             visitor_name: name,
+            visitor_phone: chatPhone.value.trim() || null,
             visitor_email: chatEmail.value.trim() || null,
             body: 'Bonjour, je souhaite des informations sur le jardin.'
         };
@@ -1567,7 +1575,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             conversationId = res.data.conversation_id;
             addMessage('visitor', payload.body, new Date().toISOString());
+            lastMessageCount = 1;
             showChat();
+            startPolling();
         })
         .catch(function () {
             chatInitError.textContent = 'Erreur réseau.';
@@ -1603,6 +1613,39 @@ document.addEventListener('DOMContentLoaded', function () {
         return d.innerHTML;
     }
 
+    function startPolling() {
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = setInterval(pollMessages, 4000);
+    }
+
+    function pollMessages() {
+        if (!conversationId) return;
+        fetch(API + 'messages/' + conversationId)
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+            if (!res.success) return;
+            var msgs = res.data.messages || [];
+            if (msgs.length > lastMessageCount) {
+                for (var i = lastMessageCount; i < msgs.length; i++) {
+                    if (msgs[i].sender === 'admin') {
+                        addMessage('admin', msgs[i].body, msgs[i].created_at);
+                    }
+                }
+                lastMessageCount = msgs.length;
+                showBadge();
+            }
+        })
+        .catch(function () {});
+    }
+
+    function showBadge() {
+        var badge = document.getElementById('chatBadge');
+        if (!chatWidget.classList.contains('open')) {
+            badge.style.display = 'grid';
+            badge.textContent = '1';
+        }
+    }
+
     chatInput.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
     });
@@ -1624,6 +1667,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(function (res) {
             if (res.success) {
                 addMessage('visitor', text, new Date().toISOString());
+                lastMessageCount++;
             } else {
                 chatInput.value = text;
             }
