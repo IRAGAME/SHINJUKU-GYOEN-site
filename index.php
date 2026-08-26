@@ -565,7 +565,7 @@
         body.offline #mapPins .map-pin, body.offline #siteViewer, body.offline #backToTop,
         body.offline #toast, body.offline #authModal, body.offline #mobileMenu,
         body.offline #myReservations, body.offline #distributionBars,
-        body.offline #chatFab { display: none !important; }
+        body.offline #chatWidget { display: none !important; }
         body.offline #carte .glass-panel > p { color: rgb(var(--on-surface-variant)); }
 
         /* ---- Pied de page ---- */
