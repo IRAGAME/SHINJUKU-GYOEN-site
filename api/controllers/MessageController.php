@@ -409,16 +409,16 @@ final class MessageController
     /* -------------------------------------------------------------- */
 
     /**
-     * Envoie une notification à l'admin (WhatsApp + email) quand un visiteur écrit.
+     * Envoie une notification à l'admin (WhatsApp Vonage + email) quand un visiteur écrit.
      */
     private static function notifyAdminViaWhatsApp(int $convId, string $visitorName, string $body): array
     {
         $results = [];
 
-        // Notification WhatsApp (CallMeBot)
+        // Notification WhatsApp via Vonage
         if (whatsapp_is_configured()) {
-            $text = "Nouveau message de *{$visitorName}* (conv #{$convId}) :\n\n{$body}\n\n---\nRépondez sur le site admin.";
-            $results['whatsapp'] = whatsapp_send_message(CALLMEBOT_PHONE, $text);
+            $text = "Nouveau message de *{$visitorName}* (conv #{$convId}) :\n\n{$body}\n\n---\nRépondez sur le site : admin.php";
+            $results['whatsapp'] = whatsapp_send_message(WHATSAPP_ADMIN_PHONE, $text);
         }
 
         // Notification email (backup)

@@ -4,20 +4,25 @@ declare(strict_types=1);
 
 /**
  * ============================================================
- *  SHINJUKU GYOEN - Configuration Messagerie
+ *  SHINJUKU GYOEN - Configuration Messagerie WhatsApp (Vonage)
  * ============================================================
- *  Le chat widget envoie les messages directement sur
- *  WhatsApp de l'admin via un lien wa.me.
+ *  Utilise l'API Vonage Messages pour envoyer des notifications
+ *  WhatsApp quand un visiteur écrit sur le site.
  *
- *  Le visiteur clique sur le bouton WhatsApp → s'ouvre une
- *  conversation WhatsApp avec le message pré-rempli.
- *
- *  Pas besoin de compte, pas d'API, pas de vérification.
+ *  Le visiteur envoie un message sur le site → l'admin reçoit
+ *  le message sur WhatsApp. L'admin répond sur admin.php.
  * ============================================================
  */
 
-// Numéro WhatsApp de l'admin (format international sans +)
-// Ex: 25766061745
+// ─── Vonage API ────────────────────────────────────────────
+define('VONAGE_API_KEY', 'riwqBU2Vn4dA3yvg');
+define('VONAGE_API_SECRET', 'pB08DgRXSmLPj6Xw!B2');
+
+// Numéro Vonage (celui qui envoie les notifications)
+define('VONAGE_WHATSAPP_FROM', '14157386102');
+
+// Numéro WhatsApp de l'admin (celui qui REÇOIT les notifications)
+// C'est VOTRE numéro perso — format international sans +
 define('WHATSAPP_ADMIN_PHONE', '25766061745');
 
 // Nom du site
@@ -27,35 +32,70 @@ define('SITE_NAME', 'Shinjuku Gyoen');
 define('ADMIN_EMAIL', 'iragame1@gmail.com');
 
 /**
- * Vérifie si WhatsApp est configuré.
+ * Vérifie si Vonage est configuré.
  */
 function whatsapp_is_configured(): bool
 {
-    return WHATSAPP_ADMIN_PHONE !== '';
+    return VONAGE_API_KEY !== '' && VONAGE_API_SECRET !== '';
 }
 
 /**
- * Génère un lien WhatsApp Click-to-Chat.
+ * Envoie un message WhatsApp via Vonage Messages API.
  *
- * @param string $message Message pré-rempli
- * @return string URL wa.me
- */
-function whatsapp_get_link(string $message = ''): string
-{
-    $phone = preg_replace('/[^0-9]/', '', WHATSAPP_ADMIN_PHONE);
-    $url = 'https://wa.me/' . $phone;
-    if ($message !== '') {
-        $url .= '?text=' . urlencode($message);
-    }
-    return $url;
-}
-
-/**
- * Stub pour compatibilité (pas d'envoi API).
+ * @param string $to   Numéro destination (sans +)
+ * @param string $text Contenu du message
+ * @return array{ok: bool, error?: string, message_id?: string}
  */
 function whatsapp_send_message(string $to, string $text): array
 {
-    return ['ok' => false, 'error' => 'Mode lien direct — utilisez wa.me'];
+    if (!whatsapp_is_configured()) {
+        return ['ok' => false, 'error' => 'Vonage non configuré.'];
+    }
+
+    // Nettoyer le numéro
+    $to = preg_replace('/[^0-9]/', '', $to);
+
+    $url = 'https://messages-api-us-1.vonage.com/v1/messages';
+
+    $payload = json_encode([
+        'from' => ['type' => 'whatsapp', 'number' => VONAGE_WHATSAPP_FROM],
+        'to'   => ['type' => 'whatsapp', 'number' => $to],
+        'channel' => 'whatsapp',
+        'content' => [
+            'type' => 'text',
+            'text' => $text,
+        ],
+    ]);
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => $payload,
+        CURLOPT_HTTPHEADER     => [
+            'Content-Type: application/json',
+            'Accept: application/json',
+        ],
+        CURLOPT_USERPWD        => VONAGE_API_KEY . ':' . VONAGE_API_SECRET,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 15,
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($response === false) {
+        return ['ok' => false, 'error' => 'Échec de la requête cURL.'];
+    }
+
+    $data = json_decode($response, true);
+
+    if ($httpCode >= 200 && $httpCode < 300 && isset($data['message_uuid'])) {
+        return ['ok' => true, 'message_id' => $data['message_uuid']];
+    }
+
+    $errorMsg = $data['error_title'] ?? $data['error'] ?? $response;
+    return ['ok' => false, 'error' => 'Vonage (HTTP ' . $httpCode . '): ' . $errorMsg];
 }
 
 /**
@@ -96,8 +136,17 @@ function notify_admin_email(string $visitorName, string $body, int $convId): boo
     return mail(ADMIN_EMAIL, $subject, $html, $headers);
 }
 
-function whatsapp_verify_signature(string $signature, string $rawBody, string $token): bool { return true; }
-function whatsapp_get_templates(string $wabaId = '', int $limit = 50, string $status = ''): array { return ['ok' => false]; }
-function whatsapp_get_template(string $templateName): array { return ['ok' => false]; }
-function whatsapp_send_template(string $to, string $templateName, string $langCode = 'fr', array $params = []): array { return ['ok' => false]; }
-function whatsapp_delete_template(string $templateName): array { return ['ok' => false]; }
+/**
+ * Vérifie la signature du webhook Vonage.
+ */
+function whatsapp_verify_signature(string $signature, string $rawBody, string $token): bool
+{
+    $expected = hash_hmac('sha256', $rawBody, $token);
+    return hash_equals($expected, $signature);
+}
+
+// Stubs templates (non utilisés avec Vonage basic)
+function whatsapp_get_templates(string $wabaId = '', int $limit = 50, string $status = ''): array { return ['ok' => false, 'error' => 'Non disponible.']; }
+function whatsapp_get_template(string $templateName): array { return ['ok' => false, 'error' => 'Non disponible.']; }
+function whatsapp_send_template(string $to, string $templateName, string $langCode = 'fr', array $params = []): array { return ['ok' => false, 'error' => 'Non disponible.']; }
+function whatsapp_delete_template(string $templateName): array { return ['ok' => false, 'error' => 'Non disponible.']; }

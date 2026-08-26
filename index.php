@@ -257,7 +257,42 @@
         .dark .drawer-kanji { color: rgba(226,227,222,.05); }
         @media (prefers-reduced-motion: reduce) { .menu-link, .drawer-fade { transition: none; opacity: 1; transform: none; } #bgCanvas::before { animation: none; } }
         /* ---- Widget Messagerie WhatsApp ---- */
-        /* (Widget CSS supprimé — le bouton ouvre directement wa.me) */
+        #chatFab { position: fixed; bottom: 24px; left: 24px; z-index: 62; width: 56px; height: 56px; border-radius: 9999px; background: #25D366; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(37,211,102,.45); display: grid; place-items: center; transition: transform .2s ease, box-shadow .2s ease; }
+        #chatFab:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(37,211,102,.55); }
+        #chatFab svg { width: 30px; height: 30px; }
+        #chatWidget { position: fixed; bottom: 92px; left: 24px; z-index: 62; width: 380px; max-width: calc(100vw - 32px); height: 480px; max-height: calc(100vh - 140px); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; background: #fff; box-shadow: 0 12px 40px rgba(0,0,0,.18); opacity: 0; transform: translateY(12px) scale(0.97); pointer-events: none; transition: opacity .25s ease, transform .25s ease; }
+        #chatWidget.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+        .chat-header { background: #075E54; color: #fff; padding: 14px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        .chat-header .chat-avatar { width: 40px; height: 40px; border-radius: 9999px; background: #128C7E; display: grid; place-items: center; font-size: 18px; font-weight: 700; flex-shrink: 0; }
+        .chat-header-info { flex: 1; min-width: 0; }
+        .chat-header-info .name { font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 600; }
+        .chat-header-info .status { font-size: 12px; opacity: .8; }
+        .chat-header button { background: none; border: none; color: rgba(255,255,255,.8); cursor: pointer; padding: 4px; border-radius: 50%; transition: color .15s ease; }
+        .chat-header button:hover { color: #fff; }
+        .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 16px; background: #ECE5DD; }
+        .chat-msg { max-width: 80%; padding: 8px 12px; border-radius: 12px; font-family: 'Manrope', sans-serif; font-size: 14px; line-height: 1.45; word-break: break-word; }
+        .chat-msg.visitor { align-self: flex-end; background: #DCF8C6; border-bottom-right-radius: 4px; }
+        .chat-msg.admin { align-self: flex-start; background: #fff; border-bottom-left-radius: 4px; box-shadow: 0 1px 1px rgba(0,0,0,.06); }
+        .chat-msg .time { display: block; font-size: 10px; color: rgba(0,0,0,.35); text-align: right; margin-top: 4px; }
+        .chat-msg .sender { font-size: 11px; font-weight: 600; color: #075E54; margin-bottom: 2px; }
+        .chat-msg.visitor .sender { color: #128C7E; text-align: right; }
+        .chat-input-area { display: flex; gap: 8px; padding: 10px 12px; background: #f0f0f0; border-top: 1px solid #ddd; flex-shrink: 0; }
+        .chat-input-area input { flex: 1; border: 1px solid #ccc; border-radius: 24px; padding: 10px 16px; font-family: 'Manrope', sans-serif; font-size: 14px; outline: none; transition: border-color .15s ease; }
+        .chat-input-area input:focus { border-color: #25D366; }
+        .chat-input-area button { width: 40px; height: 40px; border-radius: 9999px; background: #25D366; border: none; cursor: pointer; display: grid; place-items: center; transition: background .15s ease; flex-shrink: 0; }
+        .chat-input-area button:hover { background: #1da851; }
+        .chat-input-area button svg { width: 20px; height: 20px; fill: #fff; }
+        .chat-input-area button:disabled { opacity: .5; cursor: not-allowed; }
+        .chat-init { padding: 20px; display: flex; flex-direction: column; gap: 12px; background: #fff; flex: 1; }
+        .chat-init h3 { font-family: 'Libre Caslon Text', serif; font-size: 20px; color: #075E54; margin: 0; }
+        .chat-init p { font-family: 'Manrope', sans-serif; font-size: 13px; color: #666; margin: 0; }
+        .chat-init input { border: 1px solid #ccc; border-radius: 10px; padding: 10px 14px; font-family: 'Manrope', sans-serif; font-size: 14px; outline: none; transition: border-color .15s ease; }
+        .chat-init input:focus { border-color: #25D366; }
+        .chat-init button { background: #25D366; color: #fff; border: none; border-radius: 10px; padding: 12px; font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .15s ease; }
+        .chat-init button:hover { background: #1da851; }
+        .chat-init .error { color: #e74c3c; font-size: 12px; display: none; }
+        #chatBadge { position: absolute; top: -2px; right: -2px; width: 20px; height: 20px; border-radius: 9999px; background: #e74c3c; color: #fff; font-size: 11px; font-weight: 700; display: none; place-items: center; pointer-events: none; }
+        @media (max-width: 480px) { #chatWidget { left: 8px; right: 8px; width: auto; bottom: 84px; height: calc(100vh - 120px); border-radius: 12px; } #chatFab { left: 16px; bottom: 16px; } }
         .slot-btn { transition: all .2s ease; }
         .slot-btn.selected { background: #061b0e; color: #ffffff; border-color: #061b0e; }
         .star-btn { cursor: pointer; transition: transform .15s ease, color .15s ease; }
@@ -1388,11 +1423,44 @@ Tokyo · Japan</span>
 </div>
 
 <!-- ============================================================
-     BOUTON WHATSAPP - Ouvre une conversation WhatsApp directement
+     WIDGET MESSAGERIE WHATSAPP (Vonage)
      ============================================================ -->
-<a id="chatFab" href="https://wa.me/25766061745?text=Bonjour%2C%20je%20souhaite%20avoir%20des%20informations%20sur%20le%20jardin." target="_blank" rel="noopener" aria-label="Contacter via WhatsApp" class="fixed bottom-6 left-6 z-[62] w-14 h-14 rounded-full bg-[#25D366] shadow-lg shadow-[#25D366]/40 flex items-center justify-center hover:scale-105 hover:shadow-xl transition-all duration-200">
-<svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16.004 0h-.008C7.174 0 0 7.176 0 16c0 3.5 1.132 6.744 3.058 9.378L1.054 31.2l6.074-1.98A15.907 15.907 0 0016.004 32C24.826 32 32 24.822 32 16S24.826 0 16.004 0zm9.326 22.594c-.39 1.098-1.932 2.008-3.168 2.27-.842.178-1.94.32-5.654-1.216-4.756-1.966-7.806-6.79-8.04-7.104-.226-.314-1.896-2.524-1.896-4.814s1.2-3.41 1.626-3.878c.39-.428.926-.564 1.232-.564.15 0 .284.008.406.014.426.018.64.044.916.71.34.836 1.164 2.844 1.264 3.05.1.206.2.444.06.714-.134.28-.266.452-.496.698-.23.246-.464.55-.664.74-.2.198-.408.41-.174.796.234.384 1.038 1.716 2.226 2.782 1.528 1.37 2.816 1.796 3.21 1.994.394.198.624.166.852-.1.234-.268.996-1.162 1.262-1.56.262-.396.528-.332.894-.2.232.086 1.47.694 1.722.82.252.126.422.19.486.296.066.104.066.6-.324 1.1z" fill="#fff"/></svg>
-</a>
+<button id="chatFab" aria-label="Ouvrir la messagerie">
+<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16.004 0h-.008C7.174 0 0 7.176 0 16c0 3.5 1.132 6.744 3.058 9.378L1.054 31.2l6.074-1.98A15.907 15.907 0 0016.004 32C24.826 32 32 24.822 32 16S24.826 0 16.004 0zm9.326 22.594c-.39 1.098-1.932 2.008-3.168 2.27-.842.178-1.94.32-5.654-1.216-4.756-1.966-7.806-6.79-8.04-7.104-.226-.314-1.896-2.524-1.896-4.814s1.2-3.41 1.626-3.878c.39-.428.926-.564 1.232-.564.15 0 .284.008.406.014.426.018.64.044.916.71.34.836 1.164 2.844 1.264 3.05.1.206.2.444.06.714-.134.28-.266.452-.496.698-.23.246-.464.55-.664.74-.2.198-.408.41-.174.796.234.384 1.038 1.716 2.226 2.782 1.528 1.37 2.816 1.796 3.21 1.994.394.198.624.166.852-.1.234-.268.996-1.162 1.262-1.56.262-.396.528-.332.894-.2.232.086 1.47.694 1.722.82.252.126.422.19.486.296.066.104.066.6-.324 1.1z" fill="#fff"/></svg>
+<span id="chatBadge">1</span>
+</button>
+
+<div id="chatWidget">
+<div class="chat-header">
+<div class="chat-avatar">S</div>
+<div class="chat-header-info">
+<div class="name">Shinjuku Gyoen</div>
+<div class="status">En ligne</div>
+</div>
+<button id="chatClose" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+</div>
+
+<!-- Écran d'init : formulaire pour commencer -->
+<div class="chat-init" id="chatInit">
+<h3>Besoin d'aide ?</h3>
+<p>Écrivez-nous, nous répondons rapidement.</p>
+<input type="text" id="chatName" placeholder="Votre nom" maxlength="120"/>
+<input type="email" id="chatEmail" placeholder="Votre email (optionnel)" maxlength="190"/>
+<p class="error" id="chatInitError"></p>
+<button id="chatStart">Commencer la conversation</button>
+</div>
+
+<!-- Zone des messages (cachée au début) -->
+<div class="chat-messages" id="chatMessages" style="display:none;"></div>
+
+<!-- Barre d'input (cachée au début) -->
+<div class="chat-input-area" id="chatInputArea" style="display:none;">
+<input type="text" id="chatInput" placeholder="Écrivez un message..." maxlength="4000"/>
+<button id="chatSend" aria-label="Envoyer" disabled>
+<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z"/></svg>
+</button>
+</div>
+</div>
 
 <!-- ============================================================
      VISIONNEUSE IMMERSIVE - clic sur un point de la carte
@@ -1437,5 +1505,136 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
- <!-- (Widget WhatsApp supprimé — le bouton ouvre directement wa.me) -->
+<script>
+(function () {
+    var API = 'api/index.php?route=';
+    var chatFab    = document.getElementById('chatFab');
+    var chatWidget = document.getElementById('chatWidget');
+    var chatClose  = document.getElementById('chatClose');
+    var chatInit   = document.getElementById('chatInit');
+    var chatMessages = document.getElementById('chatMessages');
+    var chatInputArea = document.getElementById('chatInputArea');
+    var chatInput  = document.getElementById('chatInput');
+    var chatSend   = document.getElementById('chatSend');
+    var chatStart  = document.getElementById('chatStart');
+    var chatName   = document.getElementById('chatName');
+    var chatEmail  = document.getElementById('chatEmail');
+    var chatInitError = document.getElementById('chatInitError');
+
+    var conversationId = null;
+
+    chatFab.addEventListener('click', function () {
+        chatWidget.classList.toggle('open');
+    });
+    chatClose.addEventListener('click', function () {
+        chatWidget.classList.remove('open');
+    });
+
+    chatStart.addEventListener('click', startConversation);
+    chatName.addEventListener('keydown', function (e) { if (e.key === 'Enter') startConversation(); });
+
+    function startConversation() {
+        var name = chatName.value.trim();
+        if (!name) {
+            chatInitError.textContent = 'Veuillez entrer votre nom.';
+            chatInitError.style.display = 'block';
+            chatName.focus();
+            return;
+        }
+        chatInitError.style.display = 'none';
+        chatStart.disabled = true;
+        chatStart.textContent = 'Envoi...';
+
+        var payload = {
+            visitor_name: name,
+            visitor_email: chatEmail.value.trim() || null,
+            body: 'Bonjour, je souhaite des informations sur le jardin.'
+        };
+
+        fetch(API + 'messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+            if (!res.success) {
+                chatInitError.textContent = res.error ? res.error.message : 'Erreur lors de l\'envoi.';
+                chatInitError.style.display = 'block';
+                chatStart.disabled = false;
+                chatStart.textContent = 'Commencer la conversation';
+                return;
+            }
+            conversationId = res.data.conversation_id;
+            addMessage('visitor', payload.body, new Date().toISOString());
+            showChat();
+        })
+        .catch(function () {
+            chatInitError.textContent = 'Erreur réseau.';
+            chatInitError.style.display = 'block';
+            chatStart.disabled = false;
+            chatStart.textContent = 'Commencer la conversation';
+        });
+    }
+
+    function showChat() {
+        chatInit.style.display = 'none';
+        chatMessages.style.display = 'flex';
+        chatInputArea.style.display = 'flex';
+        chatInput.focus();
+    }
+
+    function addMessage(sender, body, time) {
+        var div = document.createElement('div');
+        div.className = 'chat-msg ' + sender;
+        var label = sender === 'visitor' ? 'Vous' : 'Shinjuku Gyoen';
+        var t = new Date(time);
+        var timeStr = t.getHours().toString().padStart(2,'0') + ':' + t.getMinutes().toString().padStart(2,'0');
+        div.innerHTML = '<span class="sender">' + label + '</span>' +
+                        '<span>' + escapeHtml(body) + '</span>' +
+                        '<span class="time">' + timeStr + '</span>';
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+        var d = document.createElement('div');
+        d.textContent = text;
+        return d.innerHTML;
+    }
+
+    chatInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+    chatSend.addEventListener('click', sendMessage);
+
+    function sendMessage() {
+        var text = chatInput.value.trim();
+        if (!text || !conversationId) return;
+
+        chatSend.disabled = true;
+        chatInput.value = '';
+
+        fetch(API + 'messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ conversation_id: conversationId, visitor_name: chatName.value.trim(), body: text })
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+            if (res.success) {
+                addMessage('visitor', text, new Date().toISOString());
+            } else {
+                chatInput.value = text;
+            }
+            chatSend.disabled = false;
+            chatInput.focus();
+        })
+        .catch(function () {
+            chatInput.value = text;
+            chatSend.disabled = false;
+        });
+    }
+})();
+</script>
 </body></html>
