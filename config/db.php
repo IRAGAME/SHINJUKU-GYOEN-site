@@ -18,12 +18,15 @@ function getPDO(): PDO
         return $pdo;
     }
 
-    // Ordre de priorité : DATABASE_URL env > pooler Supabase > local MySQL
-    $databaseUrl = getenv('DATABASE_URL') ?: '';
+    // Supabase pooler (IPv4, fonctionne depuis Render)
+    $poolerUrl = 'postgresql://postgres.bbpktvbvvnnelkewchal:sinjuku%402026@aws-1-eu-west-1.pooler.supabase.com:5432/postgres';
 
-    if ($databaseUrl === '' || $databaseUrl === false) {
-        // Fallback : Supabase pooler (IPv4, port 5432)
-        $databaseUrl = 'postgresql://postgres.bbpktvbvvnnelkewchal:sinjuku%402026@aws-1-eu-west-1.pooler.supabase.com:5432/postgres';
+    // Priorité : DATABASE_URL env, mais on remplace l'host direct par le pooler
+    $databaseUrl = getenv('DATABASE_URL') ?: $poolerUrl;
+
+    // Si l'URL contient le host direct Supabase, remplacer par le pooler
+    if (strpos($databaseUrl, 'db.bbpktvbvvnnelkewchal.supabase.co') !== false) {
+        $databaseUrl = $poolerUrl;
     }
 
     $parts  = parse_url($databaseUrl);
