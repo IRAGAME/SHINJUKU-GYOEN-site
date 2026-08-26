@@ -1,6 +1,15 @@
 -- ============================================================
---  SHINJUKU GYOEN - Schéma PostgreSQL (Render)
+--  SHINJUKU GYOEN - Schéma PostgreSQL (Render / Supabase)
 -- ============================================================
+
+-- Fonction trigger pour updated_at
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
 -- Utilisateurs
 CREATE TABLE IF NOT EXISTS users (
@@ -45,7 +54,7 @@ CREATE TABLE IF NOT EXISTS comments (
 CREATE INDEX IF NOT EXISTS idx_comments_user ON comments(user_id);
 CREATE INDEX IF NOT EXISTS idx_comments_created ON comments(created_at);
 
--- Conversations (messagerie)
+-- Conversations (messagerie — visiteurs sans compte inclus)
 CREATE TABLE IF NOT EXISTS conversations (
     id               SERIAL PRIMARY KEY,
     visitor_name     VARCHAR(120)     NOT NULL,
@@ -58,6 +67,12 @@ CREATE TABLE IF NOT EXISTS conversations (
 );
 CREATE INDEX IF NOT EXISTS idx_conv_status ON conversations(status);
 CREATE INDEX IF NOT EXISTS idx_conv_created ON conversations(created_at);
+
+-- Trigger auto-update updated_at
+CREATE TRIGGER trg_conversations_updated_at
+    BEFORE UPDATE ON conversations
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
 
 -- Messages
 CREATE TABLE IF NOT EXISTS messages (
@@ -85,7 +100,8 @@ INSERT INTO site_settings (setting_key, setting_value) VALUES
     ('season',                 'Printemps'),
     ('features',               'Jardin japonais, jardin français, jardin anglais, serre, maison de thé'),
     ('contact_phone',          '+81 3-3350-0151'),
-    ('contact_email',          'contact@shinjukugyoen.example.jp')
+    ('contact_email',          'contact@shinjukugyoen.example.jp'),
+    ('closed_weekday',         '1')
 ON CONFLICT (setting_key) DO NOTHING;
 
 -- Admin (admin / admin123)

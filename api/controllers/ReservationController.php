@@ -222,10 +222,10 @@ final class ReservationController
     private static function bookedCountsBySlot(string $date): array
     {
         $stmt = getPDO()->prepare(
-            'SELECT TIME_FORMAT(visit_time, \'%H:%i\') AS slot, SUM(visitors) AS total
+            "SELECT TO_CHAR(visit_time, 'HH24:MI') AS slot, SUM(visitors) AS total
              FROM reservations
-             WHERE visit_date = ? AND status != \'cancelled\'
-             GROUP BY slot'
+             WHERE visit_date = ? AND status != 'cancelled'
+             GROUP BY slot"
         );
         $stmt->execute([$date]);
 

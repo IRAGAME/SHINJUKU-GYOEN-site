@@ -288,6 +288,9 @@ final class MessageController
         $stmt->execute([$convId, $body]);
         $msgId = (int)$pdo->lastInsertId();
 
+        $pdo->prepare('UPDATE conversations SET updated_at = NOW() WHERE id = ?')
+            ->execute([$convId]);
+
         // Envoyer via WhatsApp si le visiteur a un numéro
         $waSent = false;
         if ($conv['visitor_phone'] && whatsapp_is_configured()) {
