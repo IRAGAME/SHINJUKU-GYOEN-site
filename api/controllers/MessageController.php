@@ -315,6 +315,95 @@ final class MessageController
         json_success(['id' => (int)$id, 'status' => 'closed']);
     }
 
+    /* ================================================================
+     *  GET /api/admin/whatsapp/templates
+     *  Liste les templates WhatsApp Business (admin).
+     * ================================================================ */
+    public static function adminTemplates(): void
+    {
+        require_admin();
+
+        $status = $_GET['status'] ?? '';
+        $limit  = isset($_GET['limit']) ? max(1, min(100, (int)$_GET['limit'])) : 50;
+
+        $result = whatsapp_get_templates(limit: $limit, status: $status);
+
+        if (!$result['ok']) {
+            json_error('whatsapp_error', $result['error']);
+        }
+
+        json_success([
+            'templates' => $result['data'],
+            'paging'    => $result['paging'] ?? null,
+        ]);
+    }
+
+    /* ================================================================
+     *  GET /api/admin/whatsapp/templates/{name}
+     *  Détails d'un template WhatsApp (admin).
+     * ================================================================ */
+    public static function adminTemplateShow(string $name): void
+    {
+        require_admin();
+
+        $result = whatsapp_get_template($name);
+
+        if (!$result['ok']) {
+            json_error('whatsapp_error', $result['error']);
+        }
+
+        if ($result['data'] === null) {
+            json_error('not_found', 'Template introuvable.', 404);
+        }
+
+        json_success($result['data']);
+    }
+
+    /* ================================================================
+     *  POST /api/admin/whatsapp/send-template
+     *  Envoyer un message template WhatsApp.
+     *  Corps : { to, template_name, lang?, params? }
+     * ================================================================ */
+    public static function adminSendTemplate(): void
+    {
+        require_admin();
+        $in = json_input();
+
+        $to           = str_field($in, 'to', 20);
+        $templateName = str_field($in, 'template_name', 100);
+        $langCode     = $in['lang'] ?? 'fr';
+        $params       = $in['params'] ?? [];
+
+        $result = whatsapp_send_template($to, $templateName, $langCode, $params);
+
+        if (!$result['ok']) {
+            json_error('whatsapp_error', $result['error']);
+        }
+
+        json_success([
+            'to'           => $to,
+            'template'     => $templateName,
+            'message_id'   => $result['message_id'] ?? null,
+        ], 201);
+    }
+
+    /* ================================================================
+     *  DELETE /api/admin/whatsapp/templates/{name}
+     *  Supprimer un template WhatsApp (admin).
+     * ================================================================ */
+    public static function adminTemplateDelete(string $name): void
+    {
+        require_admin();
+
+        $result = whatsapp_delete_template($name);
+
+        if (!$result['ok']) {
+            json_error('whatsapp_error', $result['error']);
+        }
+
+        json_success(['deleted' => true, 'name' => $name]);
+    }
+
     /* -------------------------------------------------------------- */
     /*  Méthodes privées                                              */
     /* -------------------------------------------------------------- */

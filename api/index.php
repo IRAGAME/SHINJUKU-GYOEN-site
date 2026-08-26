@@ -77,6 +77,11 @@ $routes = [
     ['GET',    'admin/messages/{id}',                      [MessageController::class, 'adminMessages']],
     ['POST',   'admin/messages/{id}',                      [MessageController::class, 'adminReply']],
     ['POST',   'admin/conversations/{id}/close',           [MessageController::class, 'adminClose']],
+    // Admin WhatsApp Templates
+    ['GET',    'admin/whatsapp/templates',                   [MessageController::class, 'adminTemplates']],
+    ['GET',    'admin/whatsapp/templates/{id}',              [MessageController::class, 'adminTemplateShow']],
+    ['POST',   'admin/whatsapp/send-template',              [MessageController::class, 'adminSendTemplate']],
+    ['DELETE', 'admin/whatsapp/templates/{id}',              [MessageController::class, 'adminTemplateDelete']],
 ];
 
 /* ------------------------------------------------------------
