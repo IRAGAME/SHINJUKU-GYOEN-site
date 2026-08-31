@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../bootstrap.php';
+require_once __DIR__ . '/../services/GoogleSheetsService.php';
 
 /**
  * ============================================================
@@ -47,6 +48,21 @@ final class AuthController
         $stmt->execute([$username, $email, $hash, $fullName]);
 
         $userId = (int)$pdo->lastInsertId();
+
+        // Envoyer les infos du compte vers Google Sheets (non-bloquant)
+        try {
+            GoogleSheetsService::getInstance()->appendRow([
+                date('Y-m-d H:i:s'),
+                $userId,
+                $username,
+                $email,
+                $fullName ?? '',
+                'user',
+            ]);
+        } catch (\Throwable $e) {
+            error_log('[GoogleSheets] Échec enregistrement compte : ' . $e->getMessage());
+        }
+
         self::loginUser($userId);
 
         json_success(self::publicUser($userId), 201);
